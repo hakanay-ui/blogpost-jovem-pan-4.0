@@ -33,7 +33,14 @@ export default function LoginSignupForm() {
   const [info, setInfo] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!authLoading && user) navigate({ to: "/admin" });
+    if (!authLoading && user) {
+      const next = new URLSearchParams(window.location.search).get("next");
+      if (next && next.startsWith("/") && !next.startsWith("//")) {
+        window.location.href = next;
+        return;
+      }
+      navigate({ to: "/admin" });
+    }
   }, [user, authLoading, navigate]);
 
   const handleLogin = async (e: FormEvent) => {
