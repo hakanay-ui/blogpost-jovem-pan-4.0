@@ -16,6 +16,10 @@ export type Database = {
     Tables: {
       editorial_topics: {
         Row: {
+          praca: string
+          requires_approval: boolean
+          slug: string | null
+          sort_order: number
           active: boolean
           created_at: string
           created_by: string | null
@@ -32,6 +36,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          praca?: string
+          requires_approval?: boolean
+          slug?: string | null
+          sort_order?: number
           active?: boolean
           created_at?: string
           created_by?: string | null
@@ -48,6 +56,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          praca?: string
+          requires_approval?: boolean
+          slug?: string | null
+          sort_order?: number
           active?: boolean
           created_at?: string
           created_by?: string | null
@@ -201,6 +213,14 @@ export type Database = {
       }
       posts: {
         Row: {
+          cover_alt: string | null
+          cover_credit: string | null
+          praca: string | null
+          review_reason: string | null
+          slot_id: string | null
+          source_item_id: string | null
+          subtitle: string | null
+          validation: Json
           ai_generated: boolean
           author_id: string | null
           content: string
@@ -220,6 +240,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cover_alt?: string | null
+          cover_credit?: string | null
+          praca?: string | null
+          review_reason?: string | null
+          slot_id?: string | null
+          source_item_id?: string | null
+          subtitle?: string | null
+          validation?: Json
           ai_generated?: boolean
           author_id?: string | null
           content: string
@@ -239,6 +267,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cover_alt?: string | null
+          cover_credit?: string | null
+          praca?: string | null
+          review_reason?: string | null
+          slot_id?: string | null
+          source_item_id?: string | null
+          subtitle?: string | null
+          validation?: Json
           ai_generated?: boolean
           author_id?: string | null
           content?: string
@@ -404,6 +440,8 @@ export type Database = {
       }
       rss_feeds: {
         Row: {
+          discovery_only: boolean
+          source_kind: string
           active: boolean
           created_at: string
           id: string
@@ -414,6 +452,8 @@ export type Database = {
           url: string
         }
         Insert: {
+          discovery_only?: boolean
+          source_kind?: string
           active?: boolean
           created_at?: string
           id?: string
@@ -424,6 +464,8 @@ export type Database = {
           url: string
         }
         Update: {
+          discovery_only?: boolean
+          source_kind?: string
           active?: boolean
           created_at?: string
           id?: string
@@ -493,6 +535,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      schedule_slots: {
+        Row: {
+          active: boolean
+          created_at: string
+          day_type: string
+          focus: string | null
+          id: string
+          last_run_on: string | null
+          slot_time: string
+          strongest_of_day: boolean
+          topic_slugs: string[]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          day_type: string
+          focus?: string | null
+          id?: string
+          last_run_on?: string | null
+          slot_time: string
+          strongest_of_day?: boolean
+          topic_slugs?: string[]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          day_type?: string
+          focus?: string | null
+          id?: string
+          last_run_on?: string | null
+          slot_time?: string
+          strongest_of_day?: boolean
+          topic_slugs?: string[]
+          updated_at?: string
+        }
+        Relationships: []
       }
       tags: {
         Row: {

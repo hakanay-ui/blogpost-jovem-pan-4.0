@@ -12,13 +12,20 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AnuncieRouteImport } from './routes/anuncie'
+import { Route as AoVivoRouteImport } from './routes/ao-vivo'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as PendingApprovalRouteImport } from './routes/pending-approval'
+import { Route as PoliticaEditorialRouteImport } from './routes/politica-editorial'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as UltimasRouteImport } from './routes/ultimas'
+import { Route as CategoriaIndexRouteImport } from './routes/$categoria.index'
+import { Route as CategoriaSlugRouteImport } from './routes/$categoria.$slug'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminSplatRouteImport } from './routes/admin.$'
 import { Route as AdminFeedsRouteImport } from './routes/admin.feeds'
 import { Route as AdminGenerateRouteImport } from './routes/admin.generate'
+import { Route as AdminGradeRouteImport } from './routes/admin.grade'
 import { Route as AdminHelpRouteImport } from './routes/admin.help'
 import { Route as AdminIntegrationsRouteImport } from './routes/admin.integrations'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
@@ -50,6 +57,16 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnuncieRoute = AnuncieRouteImport.update({
+  id: '/anuncie',
+  path: '/anuncie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AoVivoRoute = AoVivoRouteImport.update({
+  id: '/ao-vivo',
+  path: '/ao-vivo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
   id: '/feed.xml',
   path: '/feed.xml',
@@ -60,9 +77,29 @@ const PendingApprovalRoute = PendingApprovalRouteImport.update({
   path: '/pending-approval',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PoliticaEditorialRoute = PoliticaEditorialRouteImport.update({
+  id: '/politica-editorial',
+  path: '/politica-editorial',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UltimasRoute = UltimasRouteImport.update({
+  id: '/ultimas',
+  path: '/ultimas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriaIndexRoute = CategoriaIndexRouteImport.update({
+  id: '/$categoria/',
+  path: '/$categoria/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriaSlugRoute = CategoriaSlugRouteImport.update({
+  id: '/$categoria/$slug',
+  path: '/$categoria/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -83,6 +120,11 @@ const AdminFeedsRoute = AdminFeedsRouteImport.update({
 const AdminGenerateRoute = AdminGenerateRouteImport.update({
   id: '/generate',
   path: '/generate',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminGradeRoute = AdminGradeRouteImport.update({
+  id: '/grade',
+  path: '/grade',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminHelpRoute = AdminHelpRouteImport.update({
@@ -165,12 +207,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/admin': typeof AdminRouteWithChildren
+  '/anuncie': typeof AnuncieRoute
+  '/ao-vivo': typeof AoVivoRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/pending-approval': typeof PendingApprovalRoute
+  '/politica-editorial': typeof PoliticaEditorialRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/ultimas': typeof UltimasRoute
+  '/$categoria/$slug': typeof CategoriaSlugRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/feeds': typeof AdminFeedsRoute
   '/admin/generate': typeof AdminGenerateRoute
+  '/admin/grade': typeof AdminGradeRoute
   '/admin/help': typeof AdminHelpRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -185,18 +233,25 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/post/$slug': typeof PostSlugRoute
   '/tag/$slug': typeof TagSlugRoute
+  '/$categoria/': typeof CategoriaIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/posts/$id': typeof AdminPostsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/anuncie': typeof AnuncieRoute
+  '/ao-vivo': typeof AoVivoRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/pending-approval': typeof PendingApprovalRoute
+  '/politica-editorial': typeof PoliticaEditorialRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/ultimas': typeof UltimasRoute
+  '/$categoria/$slug': typeof CategoriaSlugRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/feeds': typeof AdminFeedsRoute
   '/admin/generate': typeof AdminGenerateRoute
+  '/admin/grade': typeof AdminGradeRoute
   '/admin/help': typeof AdminHelpRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -211,6 +266,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/post/$slug': typeof PostSlugRoute
   '/tag/$slug': typeof TagSlugRoute
+  '/$categoria': typeof CategoriaIndexRoute
   '/admin': typeof AdminIndexRoute
   '/admin/posts/$id': typeof AdminPostsIdRoute
 }
@@ -219,12 +275,18 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/admin': typeof AdminRouteWithChildren
+  '/anuncie': typeof AnuncieRoute
+  '/ao-vivo': typeof AoVivoRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/pending-approval': typeof PendingApprovalRoute
+  '/politica-editorial': typeof PoliticaEditorialRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/ultimas': typeof UltimasRoute
+  '/$categoria/$slug': typeof CategoriaSlugRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/feeds': typeof AdminFeedsRoute
   '/admin/generate': typeof AdminGenerateRoute
+  '/admin/grade': typeof AdminGradeRoute
   '/admin/help': typeof AdminHelpRoute
   '/admin/integrations': typeof AdminIntegrationsRoute
   '/admin/logs': typeof AdminLogsRoute
@@ -239,6 +301,7 @@ export interface FileRoutesById {
   '/admin_/login': typeof AdminLoginRoute
   '/post/$slug': typeof PostSlugRoute
   '/tag/$slug': typeof TagSlugRoute
+  '/$categoria/': typeof CategoriaIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/admin/posts/$id': typeof AdminPostsIdRoute
 }
@@ -248,12 +311,18 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/admin'
+    | '/anuncie'
+    | '/ao-vivo'
     | '/feed.xml'
     | '/pending-approval'
+    | '/politica-editorial'
     | '/sitemap.xml'
+    | '/ultimas'
+    | '/$categoria/$slug'
     | '/admin/$'
     | '/admin/feeds'
     | '/admin/generate'
+    | '/admin/grade'
     | '/admin/help'
     | '/admin/integrations'
     | '/admin/logs'
@@ -268,18 +337,25 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/post/$slug'
     | '/tag/$slug'
+    | '/$categoria/'
     | '/admin/'
     | '/admin/posts/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/$'
+    | '/anuncie'
+    | '/ao-vivo'
     | '/feed.xml'
     | '/pending-approval'
+    | '/politica-editorial'
     | '/sitemap.xml'
+    | '/ultimas'
+    | '/$categoria/$slug'
     | '/admin/$'
     | '/admin/feeds'
     | '/admin/generate'
+    | '/admin/grade'
     | '/admin/help'
     | '/admin/integrations'
     | '/admin/logs'
@@ -294,6 +370,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/post/$slug'
     | '/tag/$slug'
+    | '/$categoria'
     | '/admin'
     | '/admin/posts/$id'
   id:
@@ -301,12 +378,18 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/admin'
+    | '/anuncie'
+    | '/ao-vivo'
     | '/feed.xml'
     | '/pending-approval'
+    | '/politica-editorial'
     | '/sitemap.xml'
+    | '/ultimas'
+    | '/$categoria/$slug'
     | '/admin/$'
     | '/admin/feeds'
     | '/admin/generate'
+    | '/admin/grade'
     | '/admin/help'
     | '/admin/integrations'
     | '/admin/logs'
@@ -321,6 +404,7 @@ export interface FileRouteTypes {
     | '/admin_/login'
     | '/post/$slug'
     | '/tag/$slug'
+    | '/$categoria/'
     | '/admin/'
     | '/admin/posts/$id'
   fileRoutesById: FileRoutesById
@@ -329,12 +413,18 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AnuncieRoute: typeof AnuncieRoute
+  AoVivoRoute: typeof AoVivoRoute
   FeedDotxmlRoute: typeof FeedDotxmlRoute
   PendingApprovalRoute: typeof PendingApprovalRoute
+  PoliticaEditorialRoute: typeof PoliticaEditorialRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  UltimasRoute: typeof UltimasRoute
+  CategoriaSlugRoute: typeof CategoriaSlugRoute
   AdminLoginRoute: typeof AdminLoginRoute
   PostSlugRoute: typeof PostSlugRoute
   TagSlugRoute: typeof TagSlugRoute
+  CategoriaIndexRoute: typeof CategoriaIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -360,6 +450,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/anuncie': {
+      id: '/anuncie'
+      path: '/anuncie'
+      fullPath: '/anuncie'
+      preLoaderRoute: typeof AnuncieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ao-vivo': {
+      id: '/ao-vivo'
+      path: '/ao-vivo'
+      fullPath: '/ao-vivo'
+      preLoaderRoute: typeof AoVivoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/feed.xml': {
       id: '/feed.xml'
       path: '/feed.xml'
@@ -374,11 +478,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PendingApprovalRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/politica-editorial': {
+      id: '/politica-editorial'
+      path: '/politica-editorial'
+      fullPath: '/politica-editorial'
+      preLoaderRoute: typeof PoliticaEditorialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ultimas': {
+      id: '/ultimas'
+      path: '/ultimas'
+      fullPath: '/ultimas'
+      preLoaderRoute: typeof UltimasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$categoria/': {
+      id: '/$categoria/'
+      path: '/$categoria'
+      fullPath: '/$categoria/'
+      preLoaderRoute: typeof CategoriaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$categoria/$slug': {
+      id: '/$categoria/$slug'
+      path: '/$categoria/$slug'
+      fullPath: '/$categoria/$slug'
+      preLoaderRoute: typeof CategoriaSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -407,6 +539,13 @@ declare module '@tanstack/react-router' {
       path: '/generate'
       fullPath: '/admin/generate'
       preLoaderRoute: typeof AdminGenerateRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/grade': {
+      id: '/admin/grade'
+      path: '/grade'
+      fullPath: '/admin/grade'
+      preLoaderRoute: typeof AdminGradeRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/help': {
@@ -533,6 +672,7 @@ interface AdminRouteChildren {
   AdminSplatRoute: typeof AdminSplatRoute
   AdminFeedsRoute: typeof AdminFeedsRoute
   AdminGenerateRoute: typeof AdminGenerateRoute
+  AdminGradeRoute: typeof AdminGradeRoute
   AdminHelpRoute: typeof AdminHelpRoute
   AdminIntegrationsRoute: typeof AdminIntegrationsRoute
   AdminLogsRoute: typeof AdminLogsRoute
@@ -551,6 +691,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSplatRoute: AdminSplatRoute,
   AdminFeedsRoute: AdminFeedsRoute,
   AdminGenerateRoute: AdminGenerateRoute,
+  AdminGradeRoute: AdminGradeRoute,
   AdminHelpRoute: AdminHelpRoute,
   AdminIntegrationsRoute: AdminIntegrationsRoute,
   AdminLogsRoute: AdminLogsRoute,
@@ -571,12 +712,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
   AdminRoute: AdminRouteWithChildren,
+  AnuncieRoute: AnuncieRoute,
+  AoVivoRoute: AoVivoRoute,
   FeedDotxmlRoute: FeedDotxmlRoute,
   PendingApprovalRoute: PendingApprovalRoute,
+  PoliticaEditorialRoute: PoliticaEditorialRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  UltimasRoute: UltimasRoute,
+  CategoriaSlugRoute: CategoriaSlugRoute,
   AdminLoginRoute: AdminLoginRoute,
   PostSlugRoute: PostSlugRoute,
   TagSlugRoute: TagSlugRoute,
+  CategoriaIndexRoute: CategoriaIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

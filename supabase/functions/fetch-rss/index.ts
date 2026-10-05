@@ -81,16 +81,16 @@ Deno.serve(async (req) => {
     let totalNew = 0;
     const results: any[] = [];
 
-    for (const feed of feeds ?? []) {
+    const processFeed = async (feed: { id: string; url: string; name: string }) => {
       try {
         const res = await fetchWithRetry(
           feed.url,
-          { headers: { "User-Agent": "Lovable-Blog/1.0" } },
+          { headers: { "User-Agent": "Mozilla/5.0 (compatible; JovemPanGoiasBot/1.0)", Accept: "application/rss+xml, application/xml, text/xml, */*" } },
           { maxAttempts: 2 },
         );
         if (!res.ok) {
           results.push({ feed: feed.name, error: `HTTP ${res.status}` });
-          continue;
+          return;
         }
         const xml = await res.text();
         const items = parseFeed(xml);
@@ -110,7 +110,7 @@ Deno.serve(async (req) => {
             .upsert(rows, { onConflict: "feed_id,guid", ignoreDuplicates: true, count: "exact" });
           if (upErr) {
             results.push({ feed: feed.name, error: upErr.message });
-            continue;
+            return;
           }
           totalNew += count ?? 0;
           results.push({ feed: feed.name, fetched: rows.length, new: count ?? 0 });
@@ -120,6 +120,12 @@ Deno.serve(async (req) => {
       } catch (e: any) {
         results.push({ feed: feed.name, error: e.message });
       }
+    };
+
+    // Processa em lotes paralelos: ~30 feeds em sequência estouravam o tempo do cron.
+    const list = feeds ?? [];
+    for (let i = 0; i < list.length; i += 6) {
+      await Promise.all(list.slice(i, i + 6).map(processFeed));
     }
 
     await finishRun(supabase, run, {

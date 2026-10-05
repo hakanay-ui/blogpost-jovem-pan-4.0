@@ -12,9 +12,9 @@ const schema = {
   },
 };
 
-export function Markdown({ children }: { children: string }) {
+export function Markdown({ children, className = "prose-blog" }: { children: string; className?: string }) {
   return (
-    <div className="prose-blog">
+    <div className={className}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeSanitize, schema]]}

@@ -14,6 +14,7 @@ export type AdminPostRow = {
   scheduled_at: string | null;
   created_at: string;
   topic_id: string | null;
+  review_reason: string | null;
 };
 
 export function usePosts(filter: "all" | "draft" | "scheduled" | "published") {
@@ -22,7 +23,9 @@ export function usePosts(filter: "all" | "draft" | "scheduled" | "published") {
     queryFn: async (): Promise<AdminPostRow[]> => {
       let q = supabase
         .from("posts")
-        .select("id, title, slug, status, ai_generated, published_at, scheduled_at, created_at, topic_id")
+        .select(
+          "id, title, slug, status, ai_generated, published_at, scheduled_at, created_at, topic_id, review_reason",
+        )
         .order("created_at", { ascending: false });
       if (filter !== "all") q = q.eq("status", filter);
       const { data, error } = await q;

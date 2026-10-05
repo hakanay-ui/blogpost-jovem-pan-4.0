@@ -1,7 +1,7 @@
 // Helper para registrar execuções da pipeline em public.generation_runs.
 import type { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-export type RunType = "scheduler" | "fetch-rss" | "generate-post";
+export type RunType = "scheduler" | "fetch-rss" | "generate-post" | "editorial-slot";
 
 export type RunRecord = {
   id: string;

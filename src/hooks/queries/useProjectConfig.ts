@@ -20,7 +20,14 @@ export type ConfigKey =
   | "blog_section_title"
   | "auto_generate_cover"
   | "cover_image_quality"
-  | "cover_image_variants";
+  | "cover_image_variants"
+  | "blog_player_url_goiania"
+  | "blog_player_url_caldas"
+  | "blog_corrections_email"
+  | "blog_commercial_email"
+  | "blog_commercial_whatsapp"
+  | "editorial_engine_enabled"
+  | "editorial_advertisers";
 
 export type ConfigMap = Partial<Record<ConfigKey, string>>;
 
@@ -44,6 +51,13 @@ const KEYS: ConfigKey[] = [
   "auto_generate_cover",
   "cover_image_quality",
   "cover_image_variants",
+  "blog_player_url_goiania",
+  "blog_player_url_caldas",
+  "blog_corrections_email",
+  "blog_commercial_email",
+  "blog_commercial_whatsapp",
+  "editorial_engine_enabled",
+  "editorial_advertisers",
 ];
 
 export function useProjectConfig() {

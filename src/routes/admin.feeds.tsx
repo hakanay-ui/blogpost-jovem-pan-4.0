@@ -15,14 +15,9 @@ export const Route = createFileRoute("/admin/feeds")({
 const inputCls =
   "rounded-lg border border-input bg-bg-elevated px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30";
 
-const PRESETS = [
-  { name: "Hacker News (frontpage)", url: "https://hnrss.org/frontpage" },
-  { name: "TechCrunch", url: "https://techcrunch.com/feed/" },
-  { name: "The Verge", url: "https://www.theverge.com/rss/index.xml" },
-  { name: "Ars Technica", url: "https://feeds.arstechnica.com/arstechnica/index" },
-  { name: "MIT Technology Review", url: "https://www.technologyreview.com/feed/" },
-  { name: "Smashing Magazine", url: "https://www.smashingmagazine.com/feed/" },
-];
+// Os feeds do briefing da Jovem Pan Goiás entram pela migration
+// (supabase/migrations/20261005120000_jp_goias_editorial_engine.sql).
+const PRESETS: Array<{ name: string; url: string }> = [];
 
 const EMPTY_DRAFT: FeedDraft = { name: "", url: "", topic_id: null, active: true };
 
