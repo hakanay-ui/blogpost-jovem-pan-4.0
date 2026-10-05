@@ -314,7 +314,7 @@ Deno.serve(async (req) => {
       const enabled = cfgMap.auto_generate_cover == null
         ? true
         : cfgMap.auto_generate_cover === "true";
-      const quality = cfgMap.cover_image_quality === "high" ? "high" : "standard";
+      const quality = cfgMap.cover_image_quality === "standard" ? "standard" : "high";
       if (enabled) {
         const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
         const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

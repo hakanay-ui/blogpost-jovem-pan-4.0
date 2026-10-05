@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
 import {
+  articleTextFromHtml,
+  buildPhotoPrompt,
+  canUseSourcePhoto,
+  extractOgImage,
+  isUsablePage,
   findForbiddenExpressions,
   findPlaceholders,
   isBlockedSource,
@@ -11,7 +16,8 @@ import {
 } from "../../supabase/functions/_shared/editorial";
 
 describe("unsupportedNumbers", () => {
-  const corpus = "A prefeitura vacina 1.200 pessoas por dia em 15 Cais, das 8h às 17h, até 30 de outubro.";
+  const corpus =
+    "A prefeitura vacina 1.200 pessoas por dia em 15 Cais, das 8h às 17h, até 30 de outubro.";
 
   it("aceita números presentes nas fontes, inclusive com separador de milhar", () => {
     expect(unsupportedNumbers("Serão 1.200 doses por dia em 15 unidades.", corpus)).toEqual([]);
@@ -63,11 +69,15 @@ describe("isBlockedSource", () => {
 
 describe("expressões proibidas e anunciantes", () => {
   it("encontra expressões proibidas sem diferenciar maiúsculas", () => {
-    expect(findForbiddenExpressions("Vale destacar que a obra atrasou.")).toEqual(["vale destacar"]);
+    expect(findForbiddenExpressions("Vale destacar que a obra atrasou.")).toEqual([
+      "vale destacar",
+    ]);
   });
 
   it("encontra anunciantes da lista", () => {
-    expect(mentionedAdvertisers("Promoção no Supermercado Bretas", "Bretas, Hot Park")).toEqual(["Bretas"]);
+    expect(mentionedAdvertisers("Promoção no Supermercado Bretas", "Bretas, Hot Park")).toEqual([
+      "Bretas",
+    ]);
     expect(mentionedAdvertisers("Nada aqui", "")).toEqual([]);
   });
 });
@@ -90,10 +100,110 @@ describe("nowInGoias", () => {
 
 describe("slugify e wordCount", () => {
   it("gera slug curto sem acento", () => {
-    expect(slugify("Vacinação nos Cais: horário ampliado!")).toBe("vacinacao-nos-cais-horario-ampliado");
+    expect(slugify("Vacinação nos Cais: horário ampliado!")).toBe(
+      "vacinacao-nos-cais-horario-ampliado",
+    );
   });
 
   it("conta palavras ignorando markdown", () => {
     expect(wordCount("## Título\n\n- item um\n- item [dois](x)")).toBe(5);
+  });
+});
+
+describe("capa: foto da fonte e prompt realista", () => {
+  const page = "https://www.goiania.go.gov.br/noticia/vacinacao";
+
+  it("extrai og:image em qualquer ordem de atributos e resolve URL relativa", () => {
+    expect(
+      extractOgImage('<meta property="og:image" content="https://x.gov.br/f.jpg">', page),
+    ).toBe("https://x.gov.br/f.jpg");
+    expect(extractOgImage('<meta content="/wp/f.jpg" property="og:image" />', page)).toBe(
+      "https://www.goiania.go.gov.br/wp/f.jpg",
+    );
+    expect(
+      extractOgImage('<meta name="twitter:image" content="https://x.gov.br/t.jpg">', page),
+    ).toBe("https://x.gov.br/t.jpg");
+  });
+
+  it("aceita foto em pasta chamada default (Agência Brasil)", () => {
+    const ab =
+      "https://imagens.ebc.com.br/x=/1600x800/https://agenciabrasil.ebc.com.br/sites/default/files/thumbnails/image/2026/10/05/carol_gil.jpg?itok=A";
+    expect(extractOgImage(`<meta property="og:image" content="${ab}" />`, page)).toBe(ab);
+  });
+
+  it("recusa logotipo e página sem imagem", () => {
+    expect(
+      extractOgImage(
+        '<meta property="og:image" content="https://x.gov.br/logo-prefeitura.png">',
+        page,
+      ),
+    ).toBeNull();
+    expect(extractOgImage("<html><p>sem imagem</p></html>", page)).toBeNull();
+  });
+
+  it("só usa foto de fonte oficial ou da Agência Brasil", () => {
+    expect(canUseSourcePhoto("https://www.goiania.go.gov.br/n", "oficial")).toBe(true);
+    expect(canUseSourcePhoto("https://agenciabrasil.ebc.com.br/geral/noticia/x", "veiculo")).toBe(
+      true,
+    );
+    expect(canUseSourcePhoto("https://g1.globo.com/go/goias/noticia/x.ghtml", "veiculo")).toBe(
+      false,
+    );
+  });
+
+  it("o prompt pede fotografia realista e proíbe ilustração e rostos", () => {
+    const p = buildPhotoPrompt("posto de saúde em Goiânia pela manhã");
+    expect(p).toContain("Photorealistic");
+    expect(p).toContain("posto de saúde em Goiânia pela manhã");
+    expect(p).toContain("Not an illustration");
+    expect(p).toContain("No identifiable faces");
+  });
+
+  it("extrai o texto dos parágrafos do <article>", () => {
+    const html =
+      "<script>x()</script><article><p>Primeiro parágrafo com conteúdo suficiente para contar como texto.</p><p>curto</p></article>";
+    expect(articleTextFromHtml(html)).toBe(
+      "Primeiro parágrafo com conteúdo suficiente para contar como texto.",
+    );
+  });
+});
+
+describe("páginas das fontes (casos reais)", () => {
+  const big = "<html>" + "x".repeat(25_000) + "<article><p>Matéria</p></article></html>";
+
+  it("aceita o 404 falso da Prefeitura de Goiânia quando a matéria está na página", () => {
+    const u = "https://www.goiania.go.gov.br/agora/praca-tamandare";
+    expect(isUsablePage(404, big, u, u)).toBe(true);
+    expect(isUsablePage(404, "<html>Não encontrado</html>", u, u)).toBe(false);
+  });
+
+  it("recusa matéria redirecionada para o comunicado eleitoral do Governo de Goiás", () => {
+    expect(
+      isUsablePage(
+        200,
+        big,
+        "https://goias.gov.br/basileu-franca-apresenta/",
+        "https://goias.gov.br/comunicado/",
+      ),
+    ).toBe(false);
+  });
+
+  it("tolera barra final e www no redirecionamento", () => {
+    expect(
+      isUsablePage(200, "", "https://www.dm.com.br/noticia/x", "https://dm.com.br/noticia/x/"),
+    ).toBe(true);
+  });
+
+  it("usa a foto de destaque do WordPress e recusa a imagem padrão do tema", () => {
+    const page = "https://www.goiania.go.gov.br/agora/x";
+    const wp =
+      '<img width="1280" height="720" src="https://www.goiania.go.gov.br/agora/wp-content/uploads/2026/10/Praca-Tamandare.jpeg" class="attachment-post-thumbnail size-post-thumbnail wp-post-image" alt="">';
+    expect(extractOgImage(wp, page)).toBe(
+      "https://www.goiania.go.gov.br/agora/wp-content/uploads/2026/10/Praca-Tamandare.jpeg",
+    );
+    const theme =
+      '<meta property="og:image" content="https://www.bombeiros.go.gov.br/wp-content/themes/bombeiros/img/opengraph_image.jpg"/>';
+    expect(extractOgImage(theme, page)).toBeNull();
+    expect(extractOgImage(theme + wp, page)).toContain("Praca-Tamandare.jpeg");
   });
 });

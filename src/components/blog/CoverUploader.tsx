@@ -25,7 +25,7 @@ export function CoverUploader({ value, onChange, pathPrefix, postContext }: Prop
   const [variants, setVariants] = useState<{ url: string; path: string }[] | null>(null);
   const { data: cfg } = useProjectConfig();
   const variantsMode = cfg?.cover_image_variants === "3" ? 3 : 1;
-  const quality = cfg?.cover_image_quality === "high" ? "high" : "standard";
+  const quality = cfg?.cover_image_quality === "standard" ? "standard" : "high";
 
   async function handleFile(file: File) {
     if (!ALLOWED.test(file.type)) {
@@ -220,8 +220,8 @@ export function CoverUploader({ value, onChange, pathPrefix, postContext }: Prop
             rows={2}
             placeholder={
               hasContext
-                ? `Opcional — descreva a imagem. Se vazio, usaremos o título e o resumo do post.`
-                : `Descreva a imagem. Ex.: ilustração minimalista de um robô lendo notícias num laptop, paleta azul.`
+                ? `Opcional — descreva a cena da foto. Se vazio, usaremos o título e o resumo do post.`
+                : `Descreva a cena da foto. Ex.: fila em frente a um posto de saúde em Goiânia, de manhã.`
             }
             className="w-full rounded-md border border-input bg-bg-elevated px-3 py-2 text-sm text-text-primary placeholder:text-text-tertiary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
           />

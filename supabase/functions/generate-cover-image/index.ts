@@ -2,6 +2,8 @@
 // uploads it to the `post-covers` storage bucket. Returns the public URL.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { requireAdminOrScheduler } from "../_shared/auth.ts";
+import { toCoverWebp } from "../_shared/image.ts";
+import { buildPhotoPrompt } from "../_shared/editorial.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -86,8 +88,9 @@ Deno.serve(async (req) => {
     const postId: string | undefined = body?.postId;
     const title: string | undefined = body?.title;
     const excerpt: string | undefined = body?.excerpt;
+    // Padrão "high": o modelo Pro gera fotos bem mais realistas.
     const quality: "standard" | "high" =
-      body?.quality === "high" ? "high" : "standard";
+      body?.quality === "standard" ? "standard" : "high";
     const rawCount = Number(body?.count ?? 1);
     const count = rawCount === 3 ? 3 : 1;
 
@@ -96,12 +99,11 @@ Deno.serve(async (req) => {
     }
 
     const model = MODEL_BY_QUALITY[quality];
-    const finalPrompt =
-      prompt ||
-      `Crie uma imagem de capa editorial moderna, minimalista e profissional para um artigo de blog intitulado "${title}". ${
-        excerpt ? `Resumo: ${excerpt}.` : ""
-      } Estilo: ilustração conceitual elegante, paleta harmoniosa, sem texto, sem marcas d'água. ` +
-      `Composição horizontal widescreen 16:9 cinematográfica, enquadramento amplo, alta resolução editorial, sem bordas.`;
+    // Sempre fotografia jornalística realista (nunca ilustração). O prompt do
+    // usuário, quando existe, descreve a cena; senão a cena vem do título.
+    const finalPrompt = buildPhotoPrompt(
+      prompt || `Uma cena real que represente a notícia "${title}".${excerpt ? ` ${excerpt}` : ""}`,
+    );
 
     // Gera N imagens em paralelo.
     const results = await Promise.all(
@@ -124,8 +126,10 @@ Deno.serve(async (req) => {
     const subfolder = count === 3 ? `${baseFolder}/variants` : baseFolder;
 
     const uploads = await Promise.all(
-      successes.map(async ({ bytes, mime }, i) => {
-        const ext = extFromMime(mime);
+      successes.map(async (raw, i) => {
+        // 1200×675 WebP (briefing). Se a conversão falhar, sobe o original.
+        const { bytes, mime, ext } = (await toCoverWebp(raw.bytes)) ??
+          { ...raw, ext: extFromMime(raw.mime) };
         const path = count === 3 ? `${subfolder}/${ts}-${i}.${ext}` : `${subfolder}/${ts}.${ext}`;
         const { error: upErr } = await supabase.storage
           .from("post-covers")
@@ -138,7 +142,10 @@ Deno.serve(async (req) => {
 
     // Single-image: atualiza o post automaticamente (comportamento legado).
     if (count === 1 && postId && uploads[0]) {
-      await supabase.from("posts").update({ cover_image_url: uploads[0].url }).eq("id", postId);
+      await supabase
+        .from("posts")
+        .update({ cover_image_url: uploads[0].url, cover_credit: "Imagem ilustrativa gerada por IA" })
+        .eq("id", postId);
     }
 
     if (count === 3) {

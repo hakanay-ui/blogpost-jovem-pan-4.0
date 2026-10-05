@@ -41,7 +41,7 @@ function SettingsPage() {
   // Imagens padrão
   const [defaultCoverUrl, setDefaultCoverUrl] = useState("");
   const [autoGenerateCover, setAutoGenerateCover] = useState(true);
-  const [coverQuality, setCoverQuality] = useState<"standard" | "high">("standard");
+  const [coverQuality, setCoverQuality] = useState<"standard" | "high">("high");
   const [coverVariants, setCoverVariants] = useState<"1" | "3">("1");
 
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -66,7 +66,7 @@ function SettingsPage() {
     setSectionTitle(cfg.blog_section_title ?? "");
     setDefaultCoverUrl(cfg.blog_default_cover_url ?? "");
     setAutoGenerateCover(cfg.auto_generate_cover == null ? true : cfg.auto_generate_cover === "true");
-    setCoverQuality(cfg.cover_image_quality === "high" ? "high" : "standard");
+    setCoverQuality(cfg.cover_image_quality === "standard" ? "standard" : "high");
     setCoverVariants(cfg.cover_image_variants === "3" ? "3" : "1");
   }, [cfg]);
 

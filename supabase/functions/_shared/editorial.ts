@@ -126,68 +126,88 @@ export function mentionedAdvertisers(
 
 // Busca o texto principal de uma página (sem dependências): prioriza <article>,
 // depois junta os <p>. Limita o tamanho para caber no prompt.
-export async function fetchArticleText(url: string, maxChars = 7000): Promise<string> {
+const BOT_UA = "Mozilla/5.0 (compatible; JovemPanGoiasBot/1.0; +https://jovempan.com.br)";
+
+// A página serve como fonte? Casos reais dos feeds do briefing:
+// - Prefeitura de Goiânia responde 404 em matérias que existem (WordPress mal configurado);
+// - o portal do Governo de Goiás redireciona toda matéria para um comunicado
+//   (notícias suspensas no período eleitoral). Isso não é a matéria.
+export function isUsablePage(
+  status: number,
+  html: string,
+  requestedUrl: string,
+  finalUrl: string,
+): boolean {
+  const norm = (u: string) => {
+    try {
+      const x = new URL(u);
+      return `${x.hostname.replace(/^www\./, "")}${x.pathname.replace(/\/+$/, "")}`;
+    } catch {
+      return u;
+    }
+  };
+  if (finalUrl && norm(finalUrl) !== norm(requestedUrl)) return false;
+  if (status < 400) return true;
+  return status === 404 && html.length > 20_000 && /<article[\s>]/i.test(html);
+}
+
+// Baixa a página (10 s de limite). html vazio quando ela não serve como fonte.
+export async function fetchPage(url: string): Promise<{ ok: boolean; html: string }> {
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 10_000);
     const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; JovemPanGoiasBot/1.0; +https://jovempan.com.br)",
-        Accept: "text/html,application/xhtml+xml",
-      },
+      headers: { "User-Agent": BOT_UA, Accept: "text/html,application/xhtml+xml" },
       redirect: "follow",
       signal: ctrl.signal,
     });
-    clearTimeout(timer);
-    if (!res.ok) return "";
     const html = await res.text();
-    const cleaned = html
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
-      .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ");
-    const article = cleaned.match(/<article[\s\S]*?<\/article>/i)?.[0] ?? cleaned;
-    const paragraphs = article.match(/<p[^>]*>[\s\S]*?<\/p>/gi) ?? [];
-    const text = paragraphs
-      .map((p) =>
-        p
-          .replace(/<[^>]+>/g, " ")
-          .replace(/&nbsp;/g, " ")
-          .replace(/&quot;/g, '"')
-          .replace(/&amp;/g, "&")
-          .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
-          .replace(/\s+/g, " ")
-          .trim(),
-      )
-      .filter((p) => p.length > 40)
-      .join("\n");
-    return text.slice(0, maxChars);
+    clearTimeout(timer);
+    const ok = isUsablePage(res.status, html, url, res.url || url);
+    return { ok, html: ok ? html : "" };
   } catch {
-    return "";
+    return { ok: false, html: "" };
   }
 }
 
+// Texto principal de uma página (sem dependências): prioriza <article>,
+// depois junta os <p>. Limita o tamanho para caber no prompt.
+export function articleTextFromHtml(html: string, maxChars = 7000): string {
+  const cleaned = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ");
+  const article = cleaned.match(/<article[\s\S]*?<\/article>/i)?.[0] ?? cleaned;
+  const paragraphs = article.match(/<p[^>]*>[\s\S]*?<\/p>/gi) ?? [];
+  return paragraphs
+    .map((p) =>
+      p
+        .replace(/<[^>]+>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&quot;/g, '"')
+        .replace(/&amp;/g, "&")
+        .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+        .replace(/\s+/g, " ")
+        .trim(),
+    )
+    .filter((p) => p.length > 40)
+    .join("\n")
+    .slice(0, maxChars);
+}
+
+export async function fetchArticleText(url: string, maxChars = 7000): Promise<string> {
+  return articleTextFromHtml((await fetchPage(url)).html, maxChars);
+}
+
+// Fontes cujas fotos podem ser usadas como capa, com crédito (briefing, seção 5).
+export function canUseSourcePhoto(link: string, sourceKind: string): boolean {
+  return sourceKind === "oficial" || hostOf(link).endsWith("agenciabrasil.ebc.com.br");
+}
+
+// Confere com GET, não HEAD: o portal do Governo de Goiás responde 200 ao HEAD
+// e só no GET redireciona a matéria para o comunicado eleitoral.
 export async function isLinkAlive(url: string): Promise<boolean> {
-  const attempt = async (method: "HEAD" | "GET") => {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 8_000);
-    try {
-      const res = await fetch(url, {
-        method,
-        redirect: "follow",
-        signal: ctrl.signal,
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; JovemPanGoiasBot/1.0)" },
-      });
-      return res.status < 400;
-    } finally {
-      clearTimeout(timer);
-    }
-  };
-  try {
-    if (await attempt("HEAD")) return true;
-    return await attempt("GET");
-  } catch {
-    return false;
-  }
+  return (await fetchPage(url)).ok;
 }
 
 // Data/hora "de parede" em Goiás.
@@ -216,4 +236,50 @@ export function slugify(s: string): string {
     .replace(/-+/g, "-")
     .slice(0, 70)
     .replace(/-$/, "");
+}
+
+/** Instrução de fotografia jornalística realista. `scene` descreve o que mostrar. */
+export function buildPhotoPrompt(scene: string): string {
+  return [
+    "Photorealistic editorial news photograph for a Brazilian radio station's news website in Goiás, Brazil.",
+    `Scene: ${scene.trim()}`,
+    "Looks like a real photo taken by a photojournalist on location: real places, real objects, natural daylight or real night lighting,",
+    "professional DSLR, 35mm lens, shallow depth of field, true-to-life colors, subtle film grain, documentary style.",
+    "When it fits, show the urban landscape of Goiânia or the region of Caldas Novas, Goiás (cerrado vegetation, Brazilian streets, buildings and signage without readable text).",
+    "People may appear only at a distance, from behind, or out of focus. No identifiable faces.",
+    "No text, no captions, no letters, no logos, no watermarks, no brand names, no flags with emblems.",
+    "Not an illustration, not a cartoon, not vector art, not a 3D render, not a painting, not a collage.",
+    "Horizontal 16:9 composition.",
+  ].join(" ");
+}
+
+/** Imagem de destaque da matéria: og:image, twitter:image ou a foto de destaque
+ *  do WordPress (wp-post-image). Recusa logotipos e imagens padrão do tema. */
+export function extractOgImage(html: string, pageUrl: string): string | null {
+  const patterns = [
+    /<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image(?::secure_url)?["']/i,
+    /<meta[^>]+name=["']twitter:image(?::src)?["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image(?::src)?["']/i,
+    /<img[^>]+class=["'][^"']*wp-post-image[^"']*["'][^>]*\ssrc=["']([^"']+)["']/i,
+    /<img[^>]+\ssrc=["']([^"']+)["'][^>]*class=["'][^"']*wp-post-image[^"']*["']/i,
+  ];
+  for (const re of patterns) {
+    const m = html.match(re);
+    if (!m) continue;
+    const raw = m[1].replace(/&amp;/g, "&").trim();
+    try {
+      const url = new URL(raw, pageUrl);
+      // Logotipo/ícone/imagem padrão do site não serve de capa. Olha o nome do arquivo
+      // (pastas como /sites/default/files/ da Agência Brasil são fotos normais) e
+      // recusa imagens do tema do WordPress (iguais em todas as páginas).
+      const file = url.pathname.split("/").pop() ?? "";
+      if (/logo|favicon|icon|placeholder|padrao|default|opengraph/i.test(file)) continue;
+      if (/\/wp-content\/themes\//i.test(url.pathname)) continue;
+      return url.toString();
+    } catch {
+      continue;
+    }
+  }
+  return null;
 }

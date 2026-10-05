@@ -11,13 +11,17 @@ import { fetchWithRetry } from "../_shared/retry.ts";
 import { startRun, finishRun } from "../_shared/runs.ts";
 import { getApiKey, getDefaultModel } from "../_shared/keys.ts";
 import { requireAdminOrScheduler } from "../_shared/auth.ts";
+import { toCoverWebp } from "../_shared/image.ts";
 import {
   AI_COVER_CREDIT,
   BLOCKED_SOURCE_DOMAINS,
   EXCLUSIONS,
   STYLE_RULES,
   type ValidationIssue,
-  fetchArticleText,
+  articleTextFromHtml,
+  canUseSourcePhoto,
+  extractOgImage,
+  fetchPage,
   findForbiddenExpressions,
   findPlaceholders,
   hostOf,
@@ -277,7 +281,7 @@ FORMATO:
 - slug: 3 a 6 palavras-chave sem acento, separadas por hífen.
 - meta_description: até 155 caracteres.
 - cover_alt: descrição objetiva da imagem de capa, para leitores de tela.
-- cover_prompt: descrição de uma imagem ILUSTRATIVA para a capa (cena, objetos, lugar genérico), sem pessoas reconhecíveis, sem rostos, sem logotipos, sem texto escrito.
+- cover_prompt: a cena de uma FOTOGRAFIA REAL que um fotógrafo de jornal faria para esta notícia, em Goiânia ou Caldas Novas: lugar concreto (rua, posto de saúde, estádio, lavoura, rodoviária, praça, parque aquático...), objetos, hora do dia e luz. Pessoas só de longe, de costas ou desfocadas. Sem rostos, logotipos ou texto escrito. Uma ou duas frases.
 - tags: até 4 tags curtas (lugares, órgãos, times).
 - used_source_numbers: números das fontes que tratam do assunto e foram usadas.`;
 
@@ -357,23 +361,55 @@ async function attachTags(supabase: SupabaseClient, postId: string, names: strin
   }
 }
 
-async function generateCover(postId: string, article: Article): Promise<string | null> {
+// Capa por IA: a função generate-cover-image transforma a cena em instrução de
+// fotografia realista e salva em WebP 1200×675.
+async function generateCover(
+  postId: string,
+  article: Article,
+  quality: "standard" | "high",
+): Promise<string | null> {
   const url = Deno.env.get("SUPABASE_URL")!;
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const prompt =
-    `Fotografia editorial ilustrativa para notícia de rádio em Goiás: ${article.cover_prompt}. ` +
-    "Sem pessoas reconhecíveis, sem rostos em primeiro plano, sem logotipos, sem texto, sem marca d'água. " +
-    "Luz natural, cores realistas, composição horizontal 16:9 widescreen.";
   try {
     const res = await fetch(`${url}/functions/v1/generate-cover-image`, {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ postId, prompt, count: 1 }),
+      body: JSON.stringify({ postId, prompt: article.cover_prompt, quality, count: 1 }),
     });
     const j = await res.json().catch(() => ({}));
     return res.ok && j?.url ? (j.url as string) : null;
   } catch (e) {
     console.warn("[editorial-slot] capa falhou:", e);
+    return null;
+  }
+}
+
+// Foto da própria fonte oficial (prefeitura, governo, Agência Brasil), com crédito.
+// Recusa imagens pequenas (logotipos, ícones) e salva em WebP 1200×675.
+async function saveSourcePhotoCover(
+  supabase: SupabaseClient,
+  postId: string,
+  imageUrl: string,
+): Promise<string | null> {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 10_000);
+    const res = await fetch(imageUrl, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; JovemPanGoiasBot/1.0)" },
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const cover = await toCoverWebp(new Uint8Array(await res.arrayBuffer()), 800);
+    if (!cover) return null;
+    const path = `${postId}/${Date.now()}-fonte.${cover.ext}`;
+    const { error } = await supabase.storage
+      .from("post-covers")
+      .upload(path, cover.bytes, { contentType: cover.mime, upsert: true, cacheControl: "3600" });
+    if (error) return null;
+    return supabase.storage.from("post-covers").getPublicUrl(path).data.publicUrl;
+  } catch (e) {
+    console.warn("[editorial-slot] foto da fonte falhou:", e);
     return null;
   }
 }
@@ -476,11 +512,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { data: advCfg } = await supabase
+    const { data: cfgRows } = await supabase
       .from("project_config")
-      .select("value")
-      .eq("key", "editorial_advertisers")
-      .maybeSingle();
+      .select("key, value")
+      .in("key", ["editorial_advertisers", "cover_image_quality"]);
+    const cfg = Object.fromEntries(
+      (cfgRows ?? []).map((r: { key: string; value: string }) => [r.key, r.value]),
+    );
+    const coverQuality: "standard" | "high" =
+      cfg.cover_image_quality === "standard" ? "standard" : "high";
 
     const attempts: Array<Record<string, unknown>> = [];
     for (const pick of picks.slice(0, MAX_ATTEMPTS)) {
@@ -489,8 +529,13 @@ Deno.serve(async (req) => {
 
       // Fontes: matéria original (quando citável) + apuração complementar.
       const sources: Array<{ n: number; url: string; text: string }> = [];
+      let sourcePhotoUrl: string | null = null;
       if (!item.feed.discovery_only) {
-        const original = await fetchArticleText(item.link);
+        const { html } = await fetchPage(item.link);
+        const original = articleTextFromHtml(html);
+        if (canUseSourcePhoto(item.link, item.feed.source_kind)) {
+          sourcePhotoUrl = extractOgImage(html, item.link);
+        }
         sources.push({
           n: 1,
           url: item.link,
@@ -592,7 +637,7 @@ Deno.serve(async (req) => {
       if (liveSources.length === 0)
         issues.push({ code: "sem_fonte", message: "Nenhuma fonte válida", blocking: true });
 
-      const advertisers = mentionedAdvertisers(fullText, advCfg?.value);
+      const advertisers = mentionedAdvertisers(fullText, cfg.editorial_advertisers);
 
       // Grava como rascunho; o status final sai depois da capa.
       const slug = await uniqueSlug(supabase, slugify(article.slug || article.title));
@@ -622,7 +667,26 @@ Deno.serve(async (req) => {
       await supabase.from("rss_items").update({ used_in_post_id: post.id }).eq("id", item.id);
       await attachTags(supabase, post.id, article.tags ?? []);
 
-      const coverUrl = await generateCover(post.id, article);
+      // Imagem (briefing, seção 5): 1º foto da fonte oficial com crédito; 2º IA ilustrativa.
+      let coverUrl: string | null = null;
+      let coverCredit: string | null = null;
+      if (sourcePhotoUrl) {
+        coverUrl = await saveSourcePhotoCover(supabase, post.id, sourcePhotoUrl);
+        if (coverUrl) {
+          coverCredit = `Foto: ${item.feed.name}`;
+          await supabase
+            .from("posts")
+            .update({
+              cover_image_url: coverUrl,
+              cover_alt: `Foto de divulgação: ${article.title}`,
+            })
+            .eq("id", post.id);
+        }
+      }
+      if (!coverUrl) {
+        coverUrl = await generateCover(post.id, article, coverQuality);
+        if (coverUrl) coverCredit = AI_COVER_CREDIT;
+      }
       if (!coverUrl)
         issues.push({ code: "sem_imagem", message: "Capa não foi gerada", blocking: true });
 
@@ -648,7 +712,7 @@ Deno.serve(async (req) => {
           status,
           published_at: status === "published" ? new Date().toISOString() : null,
           review_reason: reviewReason,
-          cover_credit: coverUrl ? AI_COVER_CREDIT : null,
+          cover_credit: coverCredit,
           validation: { issues, pick, words, checked_at: new Date().toISOString() },
         })
         .eq("id", post.id);
