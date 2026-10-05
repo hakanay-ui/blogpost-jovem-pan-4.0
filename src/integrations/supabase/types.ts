@@ -16,10 +16,6 @@ export type Database = {
     Tables: {
       editorial_topics: {
         Row: {
-          praca: string
-          requires_approval: boolean
-          slug: string | null
-          sort_order: number
           active: boolean
           created_at: string
           created_by: string | null
@@ -31,15 +27,15 @@ export type Database = {
           last_generated_at: string | null
           max_posts_per_day: number
           name: string
+          praca: string
           publish_mode: Database["public"]["Enums"]["publish_mode"]
+          requires_approval: boolean
           schedule_mode: Database["public"]["Enums"]["schedule_mode"]
+          slug: string | null
+          sort_order: number
           updated_at: string
         }
         Insert: {
-          praca?: string
-          requires_approval?: boolean
-          slug?: string | null
-          sort_order?: number
           active?: boolean
           created_at?: string
           created_by?: string | null
@@ -51,15 +47,15 @@ export type Database = {
           last_generated_at?: string | null
           max_posts_per_day?: number
           name: string
+          praca?: string
           publish_mode?: Database["public"]["Enums"]["publish_mode"]
+          requires_approval?: boolean
           schedule_mode?: Database["public"]["Enums"]["schedule_mode"]
+          slug?: string | null
+          sort_order?: number
           updated_at?: string
         }
         Update: {
-          praca?: string
-          requires_approval?: boolean
-          slug?: string | null
-          sort_order?: number
           active?: boolean
           created_at?: string
           created_by?: string | null
@@ -71,8 +67,12 @@ export type Database = {
           last_generated_at?: string | null
           max_posts_per_day?: number
           name?: string
+          praca?: string
           publish_mode?: Database["public"]["Enums"]["publish_mode"]
+          requires_approval?: boolean
           schedule_mode?: Database["public"]["Enums"]["schedule_mode"]
+          slug?: string | null
+          sort_order?: number
           updated_at?: string
         }
         Relationships: []
@@ -213,87 +213,101 @@ export type Database = {
       }
       posts: {
         Row: {
-          cover_alt: string | null
-          cover_credit: string | null
-          praca: string | null
-          review_reason: string | null
-          slot_id: string | null
-          source_item_id: string | null
-          subtitle: string | null
-          validation: Json
           ai_generated: boolean
           author_id: string | null
           content: string
+          cover_alt: string | null
+          cover_credit: string | null
           cover_image_url: string | null
           created_at: string
           excerpt: string | null
           id: string
           meta_description: string | null
           meta_title: string | null
+          praca: string | null
           published_at: string | null
+          review_reason: string | null
           scheduled_at: string | null
+          slot_id: string | null
           slug: string
+          source_item_id: string | null
           sources: Json
           status: Database["public"]["Enums"]["post_status"]
+          subtitle: string | null
           title: string
           topic_id: string | null
           updated_at: string
+          validation: Json
         }
         Insert: {
-          cover_alt?: string | null
-          cover_credit?: string | null
-          praca?: string | null
-          review_reason?: string | null
-          slot_id?: string | null
-          source_item_id?: string | null
-          subtitle?: string | null
-          validation?: Json
           ai_generated?: boolean
           author_id?: string | null
           content: string
+          cover_alt?: string | null
+          cover_credit?: string | null
           cover_image_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
           meta_description?: string | null
           meta_title?: string | null
+          praca?: string | null
           published_at?: string | null
+          review_reason?: string | null
           scheduled_at?: string | null
+          slot_id?: string | null
           slug: string
+          source_item_id?: string | null
           sources?: Json
           status?: Database["public"]["Enums"]["post_status"]
+          subtitle?: string | null
           title: string
           topic_id?: string | null
           updated_at?: string
+          validation?: Json
         }
         Update: {
-          cover_alt?: string | null
-          cover_credit?: string | null
-          praca?: string | null
-          review_reason?: string | null
-          slot_id?: string | null
-          source_item_id?: string | null
-          subtitle?: string | null
-          validation?: Json
           ai_generated?: boolean
           author_id?: string | null
           content?: string
+          cover_alt?: string | null
+          cover_credit?: string | null
           cover_image_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
           meta_description?: string | null
           meta_title?: string | null
+          praca?: string | null
           published_at?: string | null
+          review_reason?: string | null
           scheduled_at?: string | null
+          slot_id?: string | null
           slug?: string
+          source_item_id?: string | null
           sources?: Json
           status?: Database["public"]["Enums"]["post_status"]
+          subtitle?: string | null
           title?: string
           topic_id?: string | null
           updated_at?: string
+          validation?: Json
         }
         Relationships: [
+          {
+            foreignKeyName: "posts_slot_id_fkey"
+            columns: ["slot_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_slots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_source_item_id_fkey"
+            columns: ["source_item_id"]
+            isOneToOne: false
+            referencedRelation: "rss_items"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "posts_topic_id_fkey"
             columns: ["topic_id"]
@@ -440,37 +454,37 @@ export type Database = {
       }
       rss_feeds: {
         Row: {
-          discovery_only: boolean
-          source_kind: string
           active: boolean
           created_at: string
+          discovery_only: boolean
           id: string
           last_fetched_at: string | null
           name: string
+          source_kind: string
           topic_id: string | null
           updated_at: string
           url: string
         }
         Insert: {
-          discovery_only?: boolean
-          source_kind?: string
           active?: boolean
           created_at?: string
+          discovery_only?: boolean
           id?: string
           last_fetched_at?: string | null
           name: string
+          source_kind?: string
           topic_id?: string | null
           updated_at?: string
           url: string
         }
         Update: {
-          discovery_only?: boolean
-          source_kind?: string
           active?: boolean
           created_at?: string
+          discovery_only?: boolean
           id?: string
           last_fetched_at?: string | null
           name?: string
+          source_kind?: string
           topic_id?: string | null
           updated_at?: string
           url?: string
