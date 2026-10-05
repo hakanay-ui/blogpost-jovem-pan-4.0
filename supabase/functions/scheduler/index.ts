@@ -150,7 +150,10 @@ Deno.serve(async (req) => {
     const { data: topics } = await supabase
       .from("editorial_topics")
       .select("id, name, frequency_hours, last_generated_at, schedule_mode, daily_run_hour, max_posts_per_day")
-      .eq("active", true);
+      .eq("active", true)
+      // Editorias com slug pertencem ao motor editorial (grade de horários).
+      // Com o motor desligado elas não geram nada — nunca pelo modo antigo por tópico.
+      .is("slug", null);
 
     const nowDate = new Date();
     const nowMs = nowDate.getTime();
