@@ -4,7 +4,7 @@
 //  3) com o motor editorial ligado: roda o horário devido da grade (editorial-slot);
 //     desligado: dispara generate-post para topics cujo frequency_hours elapsou.
 // Registra execução em generation_runs.
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { fetchWithRetry } from "../_shared/retry.ts";
 import { startRun, finishRun } from "../_shared/runs.ts";
 
@@ -21,7 +21,7 @@ const TZ_OFFSET_HOURS = -3; // America/Sao_Paulo
 // Encontra o horário da grade devido agora (fuso de Goiás), marca como executado
 // hoje (claim atômico, evita duas execuções) e chama editorial-slot.
 async function runDueSlot(
-  supabase: ReturnType<typeof createClient>,
+  supabase: SupabaseClient,
   supabaseUrl: string,
   serviceKey: string,
 ): Promise<Record<string, unknown>> {
@@ -38,11 +38,13 @@ async function runDueSlot(
     .eq("active", true)
     .order("slot_time");
 
-  const due = (slots ?? []).find((s: { slot_time: string; last_run_on: string | null }) => {
-    const [h, m] = s.slot_time.split(":").map(Number);
-    const diff = nowMinutes - (h * 60 + m);
-    return diff >= 0 && diff < SLOT_WINDOW_MINUTES && s.last_run_on !== today;
-  }) as { id: string; slot_time: string } | undefined;
+  const due = ((slots ?? []) as Array<{ id: string; slot_time: string; last_run_on: string | null }>).find(
+    (s) => {
+      const [h, m] = s.slot_time.split(":").map(Number);
+      const diff = nowMinutes - (h * 60 + m);
+      return diff >= 0 && diff < SLOT_WINDOW_MINUTES && s.last_run_on !== today;
+    },
+  );
   if (!due) return { ok: true, due: null };
 
   const { data: claimed } = await supabase

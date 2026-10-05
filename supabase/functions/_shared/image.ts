@@ -15,8 +15,9 @@ export async function toCoverWebp(
     if (!(img instanceof Image)) return null; // GIF animado etc.
     if (img.width < minSourceWidth) return null;
     img.cover(COVER_WIDTH, COVER_HEIGHT);
-    const webp = await img.encodeWEBP(80);
-    return { bytes: webp, mime: "image/webp", ext: "webp" };
+    // ImageScript não tem encoder WebP; usa JPEG (fotos leves, qualidade 80).
+    const jpeg = await img.encodeJPEG(80);
+    return { bytes: jpeg, mime: "image/jpeg", ext: "jpg" };
   } catch (e) {
     console.warn("[image] conversão para WebP falhou:", e instanceof Error ? e.message : e);
     return null;
