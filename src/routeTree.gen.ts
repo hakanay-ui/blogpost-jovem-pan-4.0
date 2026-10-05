@@ -15,12 +15,14 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AnuncieRouteImport } from './routes/anuncie'
 import { Route as AoVivoRouteImport } from './routes/ao-vivo'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PendingApprovalRouteImport } from './routes/pending-approval'
 import { Route as PoliticaEditorialRouteImport } from './routes/politica-editorial'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as UltimasRouteImport } from './routes/ultimas'
 import { Route as CategoriaIndexRouteImport } from './routes/$categoria.index'
 import { Route as CategoriaSlugRouteImport } from './routes/$categoria.$slug'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminSplatRouteImport } from './routes/admin.$'
 import { Route as AdminFeedsRouteImport } from './routes/admin.feeds'
@@ -40,6 +42,7 @@ import { Route as AdminTopicsRouteImport } from './routes/admin.topics'
 import { Route as AdminLoginRouteImport } from './routes/admin_.login'
 import { Route as PostSlugRouteImport } from './routes/post.$slug'
 import { Route as TagSlugRouteImport } from './routes/tag.$slug'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AdminPostsIdRouteImport } from './routes/admin.posts.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -72,6 +75,11 @@ const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
   path: '/feed.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PendingApprovalRoute = PendingApprovalRouteImport.update({
   id: '/pending-approval',
   path: '/pending-approval',
@@ -102,6 +110,12 @@ const CategoriaSlugRoute = CategoriaSlugRouteImport.update({
   path: '/$categoria/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -197,6 +211,11 @@ const TagSlugRoute = TagSlugRouteImport.update({
   path: '/tag/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminPostsIdRoute = AdminPostsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -210,11 +229,13 @@ export interface FileRoutesByFullPath {
   '/anuncie': typeof AnuncieRoute
   '/ao-vivo': typeof AoVivoRoute
   '/feed.xml': typeof FeedDotxmlRoute
+  '/mcp': typeof McpRoute
   '/pending-approval': typeof PendingApprovalRoute
   '/politica-editorial': typeof PoliticaEditorialRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/ultimas': typeof UltimasRoute
   '/$categoria/$slug': typeof CategoriaSlugRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/feeds': typeof AdminFeedsRoute
   '/admin/generate': typeof AdminGenerateRoute
@@ -235,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/tag/$slug': typeof TagSlugRoute
   '/$categoria/': typeof CategoriaIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/posts/$id': typeof AdminPostsIdRoute
 }
 export interface FileRoutesByTo {
@@ -243,11 +265,13 @@ export interface FileRoutesByTo {
   '/anuncie': typeof AnuncieRoute
   '/ao-vivo': typeof AoVivoRoute
   '/feed.xml': typeof FeedDotxmlRoute
+  '/mcp': typeof McpRoute
   '/pending-approval': typeof PendingApprovalRoute
   '/politica-editorial': typeof PoliticaEditorialRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/ultimas': typeof UltimasRoute
   '/$categoria/$slug': typeof CategoriaSlugRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/feeds': typeof AdminFeedsRoute
   '/admin/generate': typeof AdminGenerateRoute
@@ -268,6 +292,7 @@ export interface FileRoutesByTo {
   '/tag/$slug': typeof TagSlugRoute
   '/$categoria': typeof CategoriaIndexRoute
   '/admin': typeof AdminIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/posts/$id': typeof AdminPostsIdRoute
 }
 export interface FileRoutesById {
@@ -278,11 +303,13 @@ export interface FileRoutesById {
   '/anuncie': typeof AnuncieRoute
   '/ao-vivo': typeof AoVivoRoute
   '/feed.xml': typeof FeedDotxmlRoute
+  '/mcp': typeof McpRoute
   '/pending-approval': typeof PendingApprovalRoute
   '/politica-editorial': typeof PoliticaEditorialRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/ultimas': typeof UltimasRoute
   '/$categoria/$slug': typeof CategoriaSlugRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/feeds': typeof AdminFeedsRoute
   '/admin/generate': typeof AdminGenerateRoute
@@ -303,6 +330,7 @@ export interface FileRoutesById {
   '/tag/$slug': typeof TagSlugRoute
   '/$categoria/': typeof CategoriaIndexRoute
   '/admin/': typeof AdminIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/posts/$id': typeof AdminPostsIdRoute
 }
 export interface FileRouteTypes {
@@ -314,11 +342,13 @@ export interface FileRouteTypes {
     | '/anuncie'
     | '/ao-vivo'
     | '/feed.xml'
+    | '/mcp'
     | '/pending-approval'
     | '/politica-editorial'
     | '/sitemap.xml'
     | '/ultimas'
     | '/$categoria/$slug'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/$'
     | '/admin/feeds'
     | '/admin/generate'
@@ -339,6 +369,7 @@ export interface FileRouteTypes {
     | '/tag/$slug'
     | '/$categoria/'
     | '/admin/'
+    | '/.lovable/oauth/consent'
     | '/admin/posts/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -347,11 +378,13 @@ export interface FileRouteTypes {
     | '/anuncie'
     | '/ao-vivo'
     | '/feed.xml'
+    | '/mcp'
     | '/pending-approval'
     | '/politica-editorial'
     | '/sitemap.xml'
     | '/ultimas'
     | '/$categoria/$slug'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/$'
     | '/admin/feeds'
     | '/admin/generate'
@@ -372,6 +405,7 @@ export interface FileRouteTypes {
     | '/tag/$slug'
     | '/$categoria'
     | '/admin'
+    | '/.lovable/oauth/consent'
     | '/admin/posts/$id'
   id:
     | '__root__'
@@ -381,11 +415,13 @@ export interface FileRouteTypes {
     | '/anuncie'
     | '/ao-vivo'
     | '/feed.xml'
+    | '/mcp'
     | '/pending-approval'
     | '/politica-editorial'
     | '/sitemap.xml'
     | '/ultimas'
     | '/$categoria/$slug'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/$'
     | '/admin/feeds'
     | '/admin/generate'
@@ -406,6 +442,7 @@ export interface FileRouteTypes {
     | '/tag/$slug'
     | '/$categoria/'
     | '/admin/'
+    | '/.lovable/oauth/consent'
     | '/admin/posts/$id'
   fileRoutesById: FileRoutesById
 }
@@ -416,15 +453,18 @@ export interface RootRouteChildren {
   AnuncieRoute: typeof AnuncieRoute
   AoVivoRoute: typeof AoVivoRoute
   FeedDotxmlRoute: typeof FeedDotxmlRoute
+  McpRoute: typeof McpRoute
   PendingApprovalRoute: typeof PendingApprovalRoute
   PoliticaEditorialRoute: typeof PoliticaEditorialRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UltimasRoute: typeof UltimasRoute
   CategoriaSlugRoute: typeof CategoriaSlugRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminLoginRoute: typeof AdminLoginRoute
   PostSlugRoute: typeof PostSlugRoute
   TagSlugRoute: typeof TagSlugRoute
   CategoriaIndexRoute: typeof CategoriaIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -471,6 +511,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pending-approval': {
       id: '/pending-approval'
       path: '/pending-approval'
@@ -511,6 +558,13 @@ declare module '@tanstack/react-router' {
       path: '/$categoria/$slug'
       fullPath: '/$categoria/$slug'
       preLoaderRoute: typeof CategoriaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -646,6 +700,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TagSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/posts/$id': {
       id: '/admin/posts/$id'
       path: '/$id'
@@ -715,15 +776,19 @@ const rootRouteChildren: RootRouteChildren = {
   AnuncieRoute: AnuncieRoute,
   AoVivoRoute: AoVivoRoute,
   FeedDotxmlRoute: FeedDotxmlRoute,
+  McpRoute: McpRoute,
   PendingApprovalRoute: PendingApprovalRoute,
   PoliticaEditorialRoute: PoliticaEditorialRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UltimasRoute: UltimasRoute,
   CategoriaSlugRoute: CategoriaSlugRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminLoginRoute: AdminLoginRoute,
   PostSlugRoute: PostSlugRoute,
   TagSlugRoute: TagSlugRoute,
   CategoriaIndexRoute: CategoriaIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

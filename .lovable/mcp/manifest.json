@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "sdk_version": "3.0.5",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://fqqmtfjieaqdkpzdkmcg.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "blogpost-jovem-pan-4-0",
+      "version": "0.1.0",
+      "title": "Blogpost Jovem Pan - 4.0"
+    },
+    "tools": [
+      {
+        "name": "list_posts",
+        "title": "Listar matérias",
+        "description": "Lista as matérias mais recentes do blog, opcionalmente filtradas por status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "status": {
+              "description": "Filtrar por status.",
+              "type": "string",
+              "enum": [
+                "draft",
+                "scheduled",
+                "published",
+                "archived"
+              ]
+            },
+            "limit": {
+              "description": "Quantidade (padrão 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_post",
+        "title": "Ver matéria",
+        "description": "Retorna o conteúdo completo de uma matéria pelo id ou slug.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "idOrSlug": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Id (uuid) ou slug da matéria."
+            }
+          },
+          "required": [
+            "idOrSlug"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_topics",
+        "title": "Listar linhas editoriais",
+        "description": "Lista as linhas editoriais (tópicos) configuradas no painel.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
