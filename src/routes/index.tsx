@@ -1,260 +1,180 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { ArrowRight } from "lucide-react";
 import { PublicLayout } from "@/layouts/PublicLayout";
-import ScrollReveal from "@/components/lp/ScrollReveal";
-import { Sparkles, Calendar, ArrowRight, Tag as TagIcon, Loader2 } from "lucide-react";
-import { useBlogPosts, type BlogPost } from "@/hooks/queries/useBlogPosts";
-import { useProjectConfig } from "@/hooks/queries/useProjectConfig";
+import {
+  CardSkeleton,
+  LeadStory,
+  ListItem,
+  RailCard,
+  SecondaryStory,
+} from "@/components/site/NewsCards";
+import { useNewsFeed, type NewsCard } from "@/hooks/queries/useNews";
+import { SITE, postParams, siteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
-  component: BlogIndex,
+  head: () => ({
+    meta: [
+      { title: `${SITE.name} — Notícias de Goiânia, Caldas Novas e Goiás` },
+      {
+        name: "description",
+        content:
+          "O jornal local da Jovem Pan em Goiás: Goiânia, Caldas Novas e região, política, economia e agro, esporte, serviço e agenda.",
+      },
+    ],
+    links: [{ rel: "canonical", href: `${siteUrl()}/` }],
+  }),
+  component: Home,
 });
 
-/**
- * Renderiza um título podendo ter trechos em **destaque**, que viram um span com gradiente.
- */
-function renderHeroTitle(text: string) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
-  return parts.map((part, i) => {
-    const m = part.match(/^\*\*([^*]+)\*\*$/);
-    if (m) {
-      return (
-        <span
-          key={i}
-          className="bg-gradient-to-r from-accent-light to-warm bg-clip-text text-transparent"
-        >
-          {m[1]}
-        </span>
-      );
-    }
-    return <span key={i}>{part}</span>;
-  });
-}
+function Home() {
+  const latest = useNewsFeed();
+  const caldas = useNewsFeed("caldas-novas");
+  const servico = useNewsFeed("servico");
 
+  const posts = latest.data?.pages[0] ?? [];
+  const [lead, ...rest] = posts;
+  const secondary = rest.slice(0, 2);
 
-function BlogIndex() {
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useBlogPosts();
-  const { data: cfg } = useProjectConfig();
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const posts = data?.pages.flat() ?? [];
+  // Fileira de destaque: Caldas Novas e região (a praça com menos fonte própria
+  // ganha vitrine fixa). Sem notícias de Caldas, mostra as próximas mais recentes.
+  const shownIds = new Set([lead, ...secondary].filter(Boolean).map((p) => p!.id));
+  const caldasPosts = (caldas.data?.pages[0] ?? []).filter((p) => !shownIds.has(p.id)).slice(0, 4);
+  const railPosts = caldasPosts.length >= 2 ? caldasPosts : rest.slice(2, 6);
+  const railIsCaldas = caldasPosts.length >= 2;
+  railPosts.forEach((p) => shownIds.add(p.id));
 
-  const heroEyebrow = cfg?.blog_hero_eyebrow?.trim() || "Conteúdo editorial com IA";
-  const heroTitle = cfg?.blog_hero_title?.trim() || "Insights **técnicos** em tempo real";
-  const heroSubtitle =
-    cfg?.blog_hero_subtitle?.trim() ||
-    "Análises curadas a partir de fontes RSS confiáveis e enriquecidas com pesquisa em tempo real.";
-  const heroImageUrl = cfg?.blog_hero_image_url?.trim();
-  const sectionEyebrow = cfg?.blog_section_eyebrow?.trim() || "Últimas publicações";
-  const sectionTitle = cfg?.blog_section_title?.trim() || "Do feed para a redação";
-  const defaultCoverUrl = cfg?.blog_default_cover_url?.trim() || null;
-
-  useEffect(() => {
-    if (!hasNextPage || isFetchingNextPage) return;
-    const el = sentinelRef.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) fetchNextPage();
-      },
-      { rootMargin: "300px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const latestList = rest.filter((p) => !shownIds.has(p.id)).slice(0, 10);
+  const servicePosts = (servico.data?.pages[0] ?? []).slice(0, 6);
 
   return (
-    <PublicLayout>
-      {/* Hero */}
-      <section className="lp-section-dark relative overflow-hidden">
-        {heroImageUrl ? (
-          <>
-            <img
-              src={heroImageUrl}
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-40"
-            />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
-          </>
+    <PublicLayout showIntro>
+      <div className="jp-container">
+        {latest.isLoading ? (
+          <HomeSkeleton />
+        ) : !lead ? (
+          <div className="py-24 text-center">
+            <p className="jp-kicker">Em breve</p>
+            <h1 className="jp-headline mt-3 text-3xl">As primeiras notícias chegam em instantes</h1>
+            <p className="mt-3 text-text-secondary">
+              A redação publica 12 notícias por dia, das 6h30 às 19h, todos os dias.
+            </p>
+          </div>
         ) : (
-          <div className="pointer-events-none absolute inset-0 opacity-30 [background:radial-gradient(circle_at_30%_20%,hsl(239_84%_67%/_0.4),transparent_50%),radial-gradient(circle_at_70%_60%,hsl(239_84%_67%/_0.25),transparent_55%)]" />
-        )}
-        <div className="relative mx-auto max-w-content px-6 pt-24 pb-20">
-          <ScrollReveal direction="up" duration={0.7}>
-            <div className="text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-text-on-dark backdrop-blur">
-                <Sparkles className="h-3 w-3" /> {heroEyebrow}
-              </div>
-              <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-text-on-dark sm:text-5xl lg:text-6xl">
-                {renderHeroTitle(heroTitle)}
-              </h1>
-              <p className="mx-auto mt-5 max-w-2xl text-base text-text-on-dark-muted md:text-lg">
-                {heroSubtitle}
-              </p>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
+          <>
+            <section className="border-b border-border py-10">
+              <LeadStory post={lead} />
+            </section>
 
-      {/* Posts list */}
-      <section className="bg-bg-base py-20">
-        <div className="mx-auto max-w-content px-6">
-          <ScrollReveal direction="up" delay={0.05}>
-            <div className="mb-10 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-accent">
-                  {sectionEyebrow}
-                </p>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
-                  {sectionTitle}
-                </h2>
-              </div>
-            </div>
-          </ScrollReveal>
-
-          {isLoading ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="lp-card-elevated h-64 animate-pulse" />
-              ))}
-            </div>
-          ) : posts.length === 0 ? (
-            <ScrollReveal direction="up" delay={0.1}>
-              <div className="lp-card-elevated p-12 text-center">
-                <h3 className="text-lg font-semibold text-text-primary">
-                  Nenhum post publicado ainda
-                </h3>
-                <p className="mt-2 text-sm text-text-secondary">
-                  Vá ao painel admin, configure um tema editorial e gere o primeiro post.
-                </p>
-                <Link to="/admin" className="lp-btn-primary-indigo mt-6">
-                  Acessar admin <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-            </ScrollReveal>
-          ) : (
-            <>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {posts.map((post, idx) => (
-                  <PostCard key={post.id} post={post} idx={idx} fallbackCover={defaultCoverUrl} />
+            {secondary.length > 0 && (
+              <section className="grid gap-8 border-b border-border py-10 md:grid-cols-2">
+                {secondary.map((p) => (
+                  <SecondaryStory key={p.id} post={p} />
                 ))}
-                {isFetchingNextPage &&
-                  [0, 1, 2].map((i) => (
-                    <div key={`skeleton-${i}`} className="lp-card-elevated h-64 animate-pulse" />
-                  ))}
-              </div>
+              </section>
+            )}
 
-              <div ref={sentinelRef} aria-hidden="true" className="h-8" />
-
-              {isFetchingNextPage && (
-                <div
-                  role="status"
-                  aria-live="polite"
-                  className="mt-6 flex items-center justify-center gap-2 text-sm text-text-secondary"
-                >
-                  <Loader2 className="h-4 w-4 animate-spin" /> Carregando mais posts…
+            {railPosts.length > 0 && (
+              <section className="border-b border-border py-10">
+                <div className="mb-5 flex items-center justify-between">
+                  <p className="jp-section-label">
+                    {railIsCaldas ? "Caldas Novas e região" : "Destaques"}
+                  </p>
+                  {railIsCaldas && (
+                    <Link
+                      to="/$categoria"
+                      params={{ categoria: "caldas-novas" }}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-accent"
+                    >
+                      Ver tudo <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  )}
                 </div>
-              )}
+                <div
+                  className={`grid gap-6 sm:grid-cols-2 ${railPosts.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}
+                >
+                  {railPosts.map((p) => (
+                    <RailCard key={p.id} post={p} />
+                  ))}
+                </div>
+              </section>
+            )}
 
-              {!hasNextPage && posts.length > 12 && (
-                <p className="mt-10 text-center text-sm text-text-tertiary">
-                  Você chegou ao fim do arquivo — {posts.length} posts.
-                </p>
-              )}
-            </>
-          )}
-        </div>
-      </section>
+            {latestList.length > 0 && (
+              <section className="py-10">
+                <p className="jp-section-label">Últimas notícias</p>
+                <div className="mt-2 grid gap-x-10 md:grid-cols-2">
+                  {latestList.map((p) => (
+                    <ListItem key={p.id} post={p} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {servicePosts.length > 0 && <ServiceBox posts={servicePosts} />}
+
+            <div className="flex justify-center pt-10">
+              <Link to="/ultimas" className="jp-btn-outline">
+                Matérias anteriores <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </>
+        )}
+      </div>
     </PublicLayout>
   );
 }
 
-function PostCard({
-  post,
-  idx,
-  fallbackCover,
-}: {
-  post: BlogPost;
-  idx: number;
-  fallbackCover: string | null;
-}) {
-  const tags = (post.post_tags ?? [])
-    .map((pt) => pt.tag)
-    .filter((t): t is { name: string; slug: string } => !!t)
-    .slice(0, 3);
-
-  const cover = post.cover_image_url || fallbackCover;
-
+/** Caixa "Serviço" (na referência, "Guias essenciais"): 6 links em 3 colunas. */
+function ServiceBox({ posts }: { posts: NewsCard[] }) {
   return (
-    <ScrollReveal direction="up" delay={Math.min(idx * 0.04, 0.3)}>
-      <article className="lp-card-elevated group flex h-full flex-col overflow-hidden">
-        <Link to="/post/$slug" params={{ slug: post.slug }} className="block">
-          {cover ? (
-            <img
-              src={cover}
-              alt={post.title}
-              className="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              loading="lazy"
-            />
-          ) : (
-            <div className="aspect-video w-full bg-gradient-to-br from-accent/20 via-bg-subtle-accent to-bg-surface-2" />
-          )}
-        </Link>
-        <div className="flex flex-1 flex-col p-6">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-text-secondary">
-            {post.topic?.name && (
-              <span className="inline-flex items-center rounded-full bg-bg-surface-2 px-2 py-0.5 font-medium text-text-primary">
-                {post.topic.name}
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {post.published_at
-                ? new Date(post.published_at).toLocaleDateString("pt-BR", {
-                    day: "numeric",
-                    month: "short",
-                  })
-                : ""}
-            </span>
-            {post.ai_generated && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 font-medium text-accent">
-                <Sparkles className="h-3 w-3" /> IA
-              </span>
-            )}
-          </div>
-          <Link to="/post/$slug" params={{ slug: post.slug }} className="mt-3">
-            <h3 className="text-xl font-bold tracking-tight text-text-primary transition-colors group-hover:text-accent">
-              {post.title}
-            </h3>
-          </Link>
-          {post.excerpt && (
-            <p className="mt-2 line-clamp-3 text-sm text-text-secondary">{post.excerpt}</p>
-          )}
-          {tags.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-1">
-              {tags.map((t) => (
-                <Link
-                  key={t.slug}
-                  to="/tag/$slug"
-                  params={{ slug: t.slug }}
-                  className="inline-flex items-center gap-1 rounded-full border border-border bg-bg-surface-1 px-2 py-0.5 text-xs text-text-secondary hover:border-accent hover:text-accent"
-                >
-                  <TagIcon className="h-2.5 w-2.5" />
-                  {t.name}
-                </Link>
-              ))}
-            </div>
-          )}
-          <Link
-            to="/post/$slug"
-            params={{ slug: post.slug }}
-            className="mt-auto inline-flex items-center gap-1 pt-4 text-sm font-semibold text-accent"
-          >
-            Ler artigo
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-          </Link>
+    <section className="rounded-lg border border-border bg-bg-elevated p-6 sm:p-8">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-extrabold tracking-tight">Serviço</h2>
+          <p className="mt-1 text-sm text-text-secondary">
+            Trânsito, clima, concursos, vagas, vacinação e prazos.
+          </p>
         </div>
-      </article>
-    </ScrollReveal>
+        <Link
+          to="/$categoria"
+          params={{ categoria: "servico" }}
+          className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-accent"
+        >
+          Todos <ArrowRight className="h-3 w-3" />
+        </Link>
+      </div>
+      <div className="mt-4 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map((p) => (
+          <Link
+            key={p.id}
+            to="/$categoria/$slug"
+            params={postParams(p)}
+            className="jp-title-link border-b border-border py-3 text-sm font-semibold leading-snug"
+          >
+            {p.title}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function HomeSkeleton() {
+  return (
+    <div className="space-y-10 py-10">
+      <div className="grid gap-8 md:grid-cols-2">
+        <CardSkeleton className="aspect-[4/3]" />
+        <div className="space-y-4 self-center">
+          <CardSkeleton className="h-3 w-28" />
+          <CardSkeleton className="h-10 w-full" />
+          <CardSkeleton className="h-10 w-4/5" />
+          <CardSkeleton className="h-4 w-full" />
+        </div>
+      </div>
+      <div className="grid gap-8 md:grid-cols-2">
+        <CardSkeleton className="aspect-video" />
+        <CardSkeleton className="aspect-video" />
+      </div>
+    </div>
   );
 }

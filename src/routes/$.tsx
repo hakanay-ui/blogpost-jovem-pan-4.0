@@ -1,19 +1,6 @@
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
+import { LEGACY_ROUTE_REDIRECTS } from "@/lib/site";
 
-const LEGACY_ROUTE_REDIRECTS: Record<string, string> = {
-  "/dashboard": "/admin",
-  "/feeds": "/admin/feeds",
-  "/generate": "/admin/generate",
-  "/integrations": "/admin/integrations",
-  "/logs": "/admin/logs",
-  "/news": "/admin/news",
-  "/posts": "/admin/posts",
-  "/profile": "/admin/profile",
-  "/security": "/admin/security",
-  "/settings": "/admin/settings",
-  "/team": "/admin/team",
-  "/topics": "/admin/topics",
-};
 
 export const Route = createFileRoute("/$")({
   beforeLoad: ({ location }) => {

@@ -5,7 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Geist', 'Inter', system-ui, sans-serif;
+  --font-sans: 'Montserrat', 'Gotham', system-ui, sans-serif;
+  --font-condensed: 'Barlow Condensed', 'Arial Narrow', sans-serif;
 
   --container-content: 1200px;
   --container-wide: 1680px;
@@ -65,159 +66,157 @@
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
 
-  --shadow-elevation-1: 0 1px 2px rgba(26, 26, 46, 0.04);
-  --shadow-elevation-2: 0 2px 8px rgba(26, 26, 46, 0.05);
-  --shadow-elevation-3: 0 4px 16px rgba(26, 26, 46, 0.07);
-  --shadow-elevation-4: 0 8px 32px rgba(26, 26, 46, 0.09);
-  --shadow-elevation-5: 0 16px 48px rgba(26, 26, 46, 0.12);
-  --shadow-accent-glow: 0 4px 16px rgba(10, 31, 59, 0.25);
-  --shadow-accent-glow-lg: 0 8px 24px rgba(10, 31, 59, 0.35);
+  --shadow-elevation-1: 0 1px 2px rgba(17, 17, 17, 0.04);
+  --shadow-elevation-2: 0 2px 8px rgba(17, 17, 17, 0.05);
+  --shadow-elevation-3: 0 4px 16px rgba(17, 17, 17, 0.07);
+  --shadow-elevation-4: 0 8px 32px rgba(17, 17, 17, 0.09);
+  --shadow-elevation-5: 0 16px 48px rgba(17, 17, 17, 0.12);
+  --shadow-accent-glow: 0 4px 16px rgba(221, 5, 16, 0.22);
+  --shadow-accent-glow-lg: 0 8px 24px rgba(221, 5, 16, 0.32);
 }
 
-/* ── Light (Viver de IA) ─────────────────────────── */
+/* ── Light (Jovem Pan Goiás) ─────────────────────
+   Manual de Marca JP 2026: vermelho #DD0510 (357 96% 44%), preto, branco.
+   Fundo levemente quente, como a referência de layout do cliente. */
 :root {
-  --radius: 0.625rem;
+  --radius: 0.5rem;
 
-  --background: 0 0% 93%;
-  --foreground: 213 96% 9%;
+  --background: 40 20% 98%;
+  --foreground: 0 0% 7%;
 
-  --card: 0 0% 98%;
-  --card-foreground: 213 96% 9%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 7%;
 
-  --popover: 0 0% 98%;
-  --popover-foreground: 213 96% 9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 7%;
 
-  --primary: 213 96% 9%;
+  --primary: 0 0% 7%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 0 0% 96%;
-  --secondary-foreground: 213 96% 9%;
+  --secondary: 30 14% 95%;
+  --secondary-foreground: 0 0% 7%;
 
-  --muted: 0 0% 89%;
-  --muted-foreground: 213 40% 30%;
+  --muted: 30 12% 93%;
+  --muted-foreground: 0 0% 36%;
 
-  --accent: 214 71% 14%;
+  --accent: 357 96% 44%;
   --accent-foreground: 0 0% 100%;
 
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive: 357 96% 44%;
+  --destructive-foreground: 0 0% 100%;
 
-  --success: 160 84% 39%;
+  --success: 152 60% 32%;
   --success-foreground: 0 0% 100%;
 
-  --warning: 43 96% 56%;
-  --warning-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 7%;
 
-  --border: 0 0% 82%;
-  --input: 0 0% 82%;
-  --ring: 214 71% 14%;
+  --border: 30 10% 88%;
+  --input: 30 10% 85%;
+  --ring: 357 96% 44%;
 
-  --bg-base: 0 0% 93%;
-  --bg-surface-1: 0 0% 96%;
-  --bg-surface-2: 0 0% 89%;
-  --bg-elevated: 0 0% 98%;
-  --bg-subtle-accent: 213 10% 92%;
-  --bg-dark: 213 96% 9%;
-  --bg-darkest: 213 96% 6%;
+  --bg-base: 40 20% 98%;
+  --bg-surface-1: 0 0% 100%;
+  --bg-surface-2: 30 14% 94%;
+  --bg-elevated: 0 0% 100%;
+  --bg-subtle-accent: 357 80% 97%;
+  --bg-dark: 0 0% 7%;
+  --bg-darkest: 0 0% 4%;
 
-  --text-primary: 213 96% 9%;
-  --text-secondary: 213 40% 30%;
-  --text-tertiary: 213 20% 50%;
-  --text-on-dark: 214 20% 95%;
-  --text-on-dark-muted: 214 10% 70%;
+  --text-primary: 0 0% 7%;
+  --text-secondary: 0 0% 33%;
+  --text-tertiary: 0 0% 48%;
+  --text-on-dark: 0 0% 98%;
+  --text-on-dark-muted: 0 0% 70%;
 
-  /* Navy VIA: #0A1F3B primário, #1E3A5F hover. */
-  --accent-primary: 214 71% 14%;
-  --accent-primary-hover: 214 51% 24%;
-  --accent-primary-light: 214 52% 42%;
-  /* Âmbar: sinal funcional de status (rascunho), não cor de marca.
-     Usa 32 95% 44% em vez do 43 96% 56% original para ter contraste
-     legível como texto sobre fundo claro — os badges aplicam text-warm
-     em cheio e bg-warm/15 como fundo. O uso decorativo dourado no hero
-     da home é neutralizado adiante, em .bg-clip-text.to-warm. */
-  --accent-warm: 32 95% 44%;
-  --accent-success: 160 84% 39%;
+  --accent-primary: 357 96% 44%;
+  --accent-primary-hover: 357 96% 36%;
+  --accent-primary-light: 357 90% 58%;
+  /* Âmbar: sinal funcional de status (rascunho), não cor de marca. */
+  --accent-warm: 32 95% 40%;
+  --accent-success: 152 60% 32%;
 
-  --sidebar-background: 213 96% 6%;
-  --sidebar-foreground: 214 20% 85%;
-  --sidebar-primary: 214 71% 14%;
+  --sidebar-background: 0 0% 5%;
+  --sidebar-foreground: 0 0% 82%;
+  --sidebar-primary: 357 96% 44%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 213 96% 9%;
-  --sidebar-accent-foreground: 214 20% 95%;
-  --sidebar-border: 213 50% 14%;
+  --sidebar-accent: 0 0% 10%;
+  --sidebar-accent-foreground: 0 0% 96%;
+  --sidebar-border: 0 0% 14%;
 }
 
 /* ── Dark ─────────────────────────── */
 .dark {
-  --background: 220 20% 8%;
-  --foreground: 210 20% 92%;
+  --background: 0 0% 6%;
+  --foreground: 0 0% 94%;
 
-  --card: 220 18% 11%;
-  --card-foreground: 210 20% 92%;
+  --card: 0 0% 9%;
+  --card-foreground: 0 0% 94%;
 
-  --popover: 220 18% 11%;
-  --popover-foreground: 210 20% 92%;
+  --popover: 0 0% 9%;
+  --popover-foreground: 0 0% 94%;
 
-  --primary: 210 60% 70%;
-  --primary-foreground: 220 20% 8%;
+  --primary: 0 0% 94%;
+  --primary-foreground: 0 0% 6%;
 
-  --secondary: 220 16% 15%;
-  --secondary-foreground: 210 20% 92%;
+  --secondary: 0 0% 13%;
+  --secondary-foreground: 0 0% 94%;
 
-  --muted: 220 16% 15%;
-  --muted-foreground: 210 10% 55%;
+  --muted: 0 0% 13%;
+  --muted-foreground: 0 0% 62%;
 
-  --accent: 210 60% 70%;
-  --accent-foreground: 220 20% 8%;
+  /* Vermelho mais claro no escuro para manter contraste AA. */
+  --accent: 357 92% 60%;
+  --accent-foreground: 0 0% 100%;
 
-  --destructive: 0 63% 31%;
-  --destructive-foreground: 210 40% 98%;
+  --destructive: 357 80% 50%;
+  --destructive-foreground: 0 0% 100%;
 
-  --success: 160 84% 45%;
+  --success: 152 55% 45%;
   --success-foreground: 0 0% 100%;
 
-  --warning: 43 96% 65%;
-  --warning-foreground: 220 20% 8%;
+  --warning: 38 92% 60%;
+  --warning-foreground: 0 0% 6%;
 
-  --border: 220 14% 20%;
-  --input: 220 14% 20%;
-  --ring: 210 60% 70%;
+  --border: 0 0% 18%;
+  --input: 0 0% 20%;
+  --ring: 357 92% 60%;
 
-  --bg-base: 220 20% 8%;
-  --bg-surface-1: 220 18% 11%;
-  --bg-surface-2: 220 16% 15%;
-  --bg-elevated: 220 18% 13%;
-  --bg-subtle-accent: 220 20% 15%;
-  --bg-dark: 220 20% 6%;
-  --bg-darkest: 220 22% 4%;
+  --bg-base: 0 0% 6%;
+  --bg-surface-1: 0 0% 9%;
+  --bg-surface-2: 0 0% 13%;
+  --bg-elevated: 0 0% 10%;
+  --bg-subtle-accent: 357 40% 12%;
+  --bg-dark: 0 0% 4%;
+  --bg-darkest: 0 0% 2%;
 
-  --text-primary: 210 20% 92%;
-  --text-secondary: 210 10% 55%;
-  --text-tertiary: 210 8% 42%;
+  --text-primary: 0 0% 94%;
+  --text-secondary: 0 0% 68%;
+  --text-tertiary: 0 0% 52%;
 
-  --accent-primary: 210 60% 70%;
-  --accent-primary-hover: 210 60% 78%;
-  --accent-primary-light: 210 50% 80%;
-  /* Âmbar mais claro no dark, para contraste sobre fundo escuro. */
+  --accent-primary: 357 92% 60%;
+  --accent-primary-hover: 357 92% 68%;
+  --accent-primary-light: 357 90% 72%;
   --accent-warm: 38 92% 60%;
-  --accent-success: 160 84% 45%;
+  --accent-success: 152 55% 45%;
 
-  --sidebar-background: 220 20% 6%;
-  --sidebar-foreground: 210 10% 65%;
-  --sidebar-primary: 210 60% 70%;
-  --sidebar-primary-foreground: 220 20% 8%;
-  --sidebar-accent: 220 16% 15%;
-  --sidebar-accent-foreground: 210 20% 92%;
-  --sidebar-border: 220 14% 20%;
+  --sidebar-background: 0 0% 4%;
+  --sidebar-foreground: 0 0% 70%;
+  --sidebar-primary: 357 92% 60%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 12%;
+  --sidebar-accent-foreground: 0 0% 94%;
+  --sidebar-border: 0 0% 16%;
 }
 
 @layer base {
   * { border-color: hsl(var(--border)); }
   html { color-scheme: light; }
+  .dark { color-scheme: dark; }
   body {
     background-color: hsl(var(--bg-base));
     color: hsl(var(--text-primary));
-    font-family: 'Geist', 'Inter', system-ui, sans-serif;
+    font-family: 'Montserrat', 'Gotham', system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
   }
@@ -225,8 +224,8 @@
 
 @layer components {
   /* Sections */
-  .lp-section-light { background-color: hsl(0 0% 93%); color: hsl(213 90% 9%); }
-  .lp-section-dark { background-color: hsl(214 93% 6%); color: hsl(var(--text-on-dark)); }
+  .lp-section-light { background-color: hsl(var(--bg-base)); color: hsl(var(--text-primary)); }
+  .lp-section-dark { background-color: hsl(0 0% 7%); color: hsl(var(--text-on-dark)); }
   .lp-section-spacing { padding-top: 6rem; padding-bottom: 6rem; }
   @media (min-width: 1024px) { .lp-section-spacing { padding-top: 8rem; padding-bottom: 8rem; } }
 
@@ -237,7 +236,7 @@
     border-radius: 0.75rem;
   }
   .lp-solid-card-dark {
-    background: hsl(213 70% 11%);
+    background: hsl(0 0% 11%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 0.75rem;
     color: hsl(var(--text-on-dark));
@@ -264,7 +263,7 @@
   }
 
   .lp-header-scrolled {
-    background: rgba(2, 22, 42, 0.85);
+    background: rgba(17, 17, 17, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -274,14 +273,12 @@
   .lp-btn-primary-indigo {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
     font-weight: 600; padding: 0.875rem 2rem; border-radius: 0.75rem;
-    background-color: hsl(214 71% 14%);
+    background-color: hsl(357 96% 44%);
     color: white;
     box-shadow: var(--shadow-accent-glow);
     transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   }
-  /* Hover explícito: sobre navy 14% de luminosidade, brightness(1.1) é
-     praticamente imperceptível — usa o #1E3A5F da marca. */
-  .lp-btn-primary-indigo:hover { background-color: hsl(214 51% 24%); box-shadow: var(--shadow-accent-glow-lg); }
+  .lp-btn-primary-indigo:hover { background-color: hsl(357 96% 36%); box-shadow: var(--shadow-accent-glow-lg); }
   .lp-btn-primary-indigo:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .lp-btn-ghost-clean {
@@ -311,13 +308,13 @@
   .stat-label { font-size: 0.875rem; font-weight: 500; color: hsl(var(--text-secondary)); }
 
   .gradient-text {
-    background-image: linear-gradient(135deg, hsl(214 52% 42%), hsl(214 71% 14%));
+    background-image: linear-gradient(135deg, hsl(357 90% 52%), hsl(357 96% 36%));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
   .dark .gradient-text {
-    background-image: linear-gradient(135deg, hsl(210 60% 78%), hsl(210 20% 92%));
+    background-image: linear-gradient(135deg, hsl(357 92% 66%), hsl(0 0% 94%));
   }
 
   /* Prose */
@@ -348,41 +345,41 @@
   }
 }
 
-/* ── Blogpost 4.0 — Viver de IA brand tokens ─────────────────── */
+/* ── Painel admin — tokens (paleta JP: vermelho, preto, branco) ───── */
 :root {
-  --bp-navy: #02162A;
-  --bp-navy-2: #051F3D;
-  --bp-blue: #0A4F95;
-  --bp-blue-400: #2F73B8;
-  --bp-blue-300: #6E9BD2;
-  --bp-blue-light: #E8F0FB;
-  --bp-blue-100: #D3E2F4;
+  --bp-navy: #0B0B0B;
+  --bp-navy-2: #161616;
+  --bp-blue: #DD0510;
+  --bp-blue-400: #E8343C;
+  --bp-blue-300: #F07A80;
+  --bp-blue-light: #FDECEC;
+  --bp-blue-100: #F9D0D2;
   --bp-success: #1F8A5C;
   --bp-success-bg: #E6F4ED;
 
   --bp-topbar-bg: rgba(255, 255, 255, 0.72);
   --bp-topbar-bg-solid: #FFFFFF;
-  --bp-topbar-border: rgba(20, 21, 42, 0.07);
-  --bp-topbar-text: #14152A;
+  --bp-topbar-border: rgba(17, 17, 17, 0.07);
+  --bp-topbar-text: #111111;
   --bp-topbar-muted: #6B7280;
   --bp-topbar-faint: #9CA3AF;
   --bp-topbar-surface: #FFFFFF;
   --bp-topbar-surface-2: #EFEFF3;
 
-  --bp-shadow-card: 0 1px 2px rgba(20,21,42,0.04), 0 6px 20px rgba(20,21,42,0.06);
-  --bp-shadow-cta: 0 4px 14px rgba(10,79,149,0.38), inset 0 1px 0 rgba(255,255,255,0.18);
-  --bp-shadow-cta-hover: 0 8px 22px rgba(10,79,149,0.45), inset 0 1px 0 rgba(255,255,255,0.22);
+  --bp-shadow-card: 0 1px 2px rgba(17,17,17,0.04), 0 6px 20px rgba(17,17,17,0.06);
+  --bp-shadow-cta: 0 4px 14px rgba(221,5,16,0.38), inset 0 1px 0 rgba(255,255,255,0.18);
+  --bp-shadow-cta-hover: 0 8px 22px rgba(221,5,16,0.45), inset 0 1px 0 rgba(255,255,255,0.22);
 }
 
 .dark {
-  --bp-topbar-bg: rgba(7, 34, 63, 0.72);
-  --bp-topbar-bg-solid: #07223F;
+  --bp-topbar-bg: rgba(20, 20, 20, 0.72);
+  --bp-topbar-bg-solid: #141414;
   --bp-topbar-border: rgba(255, 255, 255, 0.06);
   --bp-topbar-text: #F1F2F8;
   --bp-topbar-muted: #9CA3AF;
   --bp-topbar-faint: #6B7280;
-  --bp-topbar-surface: #07223F;
-  --bp-topbar-surface-2: #0B2C4F;
+  --bp-topbar-surface: #141414;
+  --bp-topbar-surface-2: #1E1E1E;
 }
 
 @layer components {
@@ -406,8 +403,8 @@
   .bp-logo {
     position: relative; width: 38px; height: 38px; border-radius: 11px;
     display: flex; align-items: center; justify-content: center; color: #fff;
-    background: linear-gradient(135deg, #2F73B8 0%, #0A4F95 55%, #02162A 100%);
-    box-shadow: 0 6px 16px rgba(10,79,149,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
+    background: linear-gradient(135deg, #E8343C 0%, #DD0510 55%, #0B0B0B 100%);
+    box-shadow: 0 6px 16px rgba(221,5,16,0.35), inset 0 1px 0 rgba(255,255,255,0.18);
     overflow: hidden;
   }
   .bp-logo::after {
@@ -422,7 +419,7 @@
     padding: 2px 6px; border-radius: 999px;
     color: var(--bp-blue); background: var(--bp-blue-light); border: 1px solid var(--bp-blue-100);
   }
-  .dark .bp-version { background: rgba(110,155,210,0.18); border-color: rgba(110,155,210,0.35); color: #B4CFEE; }
+  .dark .bp-version { background: rgba(240,122,128,0.18); border-color: rgba(240,122,128,0.35); color: #F7B5B9; }
   .bp-tagline { font-size: 11px; color: var(--bp-topbar-muted); margin-top: 2px; }
 
   .bp-divider { width: 1px; height: 28px; background: var(--bp-topbar-border); }
@@ -442,7 +439,7 @@
   .bp-search input:focus {
     outline: none; background: var(--bp-topbar-surface);
     border-color: var(--bp-blue);
-    box-shadow: 0 0 0 3px rgba(10,79,149,0.22);
+    box-shadow: 0 0 0 3px rgba(221,5,16,0.22);
   }
   .bp-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--bp-topbar-faint); pointer-events: none; }
   .bp-search-kbd {
@@ -529,10 +526,10 @@
     .bp-search, .bp-status, .bp-divider { display: none; }
   }
 
-  /* Sidebar (Viver de IA) */
+  /* Sidebar */
   .bp-sidebar {
     width: 248px; height: 100vh; min-height: 100vh;
-    background: linear-gradient(180deg, #02162A 0%, #010E1B 100%);
+    background: linear-gradient(180deg, #0B0B0B 0%, #050505 100%);
     color: rgba(255,255,255,0.78);
     border-right: 1px solid rgba(255,255,255,0.07);
     display: flex; flex-direction: column;
@@ -544,9 +541,9 @@
   }
   .bp-sidebar-mini-logo {
     width: 28px; height: 28px; border-radius: 8px;
-    background: linear-gradient(135deg, #2F73B8, #0A4F95);
+    background: linear-gradient(135deg, #E8343C, #DD0510);
     display: inline-flex; align-items: center; justify-content: center; color: #fff;
-    box-shadow: 0 4px 10px rgba(10,79,149,0.35);
+    box-shadow: 0 4px 10px rgba(221,5,16,0.35);
   }
   .bp-sidebar-eyebrow {
     font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
@@ -562,8 +559,8 @@
   }
   .bp-nav-item:hover { background: rgba(255,255,255,0.04); color: #fff; }
   .bp-nav-item[data-active="true"] {
-    background: rgba(10,79,149,0.32);
-    border-color: rgba(110,155,210,0.55);
+    background: rgba(221,5,16,0.32);
+    border-color: rgba(240,122,128,0.55);
     color: #fff; font-weight: 700;
   }
   .bp-nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
@@ -578,21 +575,80 @@
     font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
     color: var(--bp-blue);
   }
-  .dark .bp-eyebrow { color: #6E9BD2; }
+  .dark .bp-eyebrow { color: #F07A80; }
 }
 
-/* ── Âmbar de status vs. dourado decorativo ───────────────────────
-   --accent-warm é âmbar porque serve de sinal de status (rascunho),
-   via as utilities text-warm / bg-warm nos badges do admin.
-
-   O hero da home (src/routes/index.tsx) usa a MESMA cor como enfeite,
-   em "from-accent-light to-warm bg-clip-text" — e aí o dourado seria
-   cor de marca, o que a VIA não admite. Como to-warm é uma utility
-   distinta de text-warm/bg-warm (gradient stop, não color), dá para
-   neutralizar só esse uso sem tocar em componente.
-
-   Regra fora de @layer de propósito: estilos sem camada vencem os
-   das camadas do Tailwind, independentemente da ordem no arquivo. */
+/* Gradiente "to-warm" (legado do hero antigo) cai no vermelho escuro da marca.
+   Fora de @layer de propósito: vence as utilities do Tailwind. */
 .bg-clip-text.to-warm {
-  --tw-gradient-to: hsl(214 20% 55%);
+  --tw-gradient-to: hsl(357 96% 36%);
+}
+
+/* ── Site público (Jovem Pan Goiás) ───────────────────────────────── */
+@layer components {
+  .jp-container { margin-inline: auto; width: 100%; max-width: 1120px; padding-inline: 16px; }
+  @media (min-width: 640px) { .jp-container { padding-inline: 24px; } }
+
+  /* Chapéu: categoria em caixa-alta pequena, vermelha, tracking largo. */
+  .jp-kicker {
+    font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: hsl(var(--accent-primary));
+  }
+  .jp-meta { font-size: 0.75rem; color: hsl(var(--text-tertiary)); letter-spacing: 0.02em; }
+  .jp-section-label {
+    font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: hsl(var(--text-secondary));
+  }
+  .jp-condensed { font-family: var(--font-condensed); font-weight: 700; letter-spacing: 0.01em; }
+
+  .jp-headline { font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; color: hsl(var(--text-primary)); }
+  .jp-title-link { transition: color 150ms ease; }
+  .jp-title-link:hover { color: hsl(var(--accent-primary)); }
+
+  .jp-chip {
+    display: inline-flex; align-items: center; white-space: nowrap;
+    height: 28px; padding: 0 12px; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 600;
+    border: 1px solid hsl(var(--border)); background: hsl(var(--bg-elevated));
+    color: hsl(var(--text-secondary));
+    transition: border-color 150ms ease, color 150ms ease, background 150ms ease;
+  }
+  .jp-chip:hover, .jp-chip[data-active="true"] { border-color: hsl(var(--accent-primary)); color: hsl(var(--accent-primary)); }
+  .jp-chip[data-active="true"] { background: hsl(var(--bg-subtle-accent)); }
+
+  .jp-btn-red {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+    height: 34px; padding: 0 16px; border-radius: 999px;
+    font-size: 0.8125rem; font-weight: 700; color: #fff;
+    background: hsl(357 96% 44%);
+    transition: background 150ms ease;
+  }
+  .jp-btn-red:hover { background: hsl(357 96% 36%); }
+  .jp-btn-outline {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+    height: 38px; padding: 0 18px; border-radius: 999px;
+    font-size: 0.8125rem; font-weight: 600;
+    border: 1px solid hsl(var(--border)); color: hsl(var(--text-primary)); background: hsl(var(--bg-elevated));
+    transition: border-color 150ms ease, color 150ms ease;
+  }
+  .jp-btn-outline:hover { border-color: hsl(var(--accent-primary)); color: hsl(var(--accent-primary)); }
+
+  .jp-cover { background: hsl(var(--bg-surface-2)); overflow: hidden; }
+  .jp-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 500ms ease; }
+  .group:hover .jp-cover img { transform: scale(1.03); }
+
+  /* Texto da notícia */
+  .prose-news { font-size: 1.0625rem; line-height: 1.75; color: hsl(var(--text-primary)); }
+  .prose-news p { margin: 1.1rem 0; }
+  .prose-news h2 {
+    margin-top: 2.25rem; margin-bottom: 0.75rem; padding-top: 0.75rem;
+    border-top: 2px solid hsl(var(--accent-primary));
+    font-size: 0.8125rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .prose-news ul { margin: 0.75rem 0; padding-left: 1.25rem; list-style: disc; }
+  .prose-news ol { margin: 0.75rem 0; padding-left: 1.25rem; list-style: decimal; }
+  .prose-news li { margin: 0.35rem 0; }
+  .prose-news a { color: hsl(var(--accent-primary)); text-decoration: underline; text-underline-offset: 3px; }
+  .prose-news blockquote { border-left: 3px solid hsl(var(--accent-primary)); padding-left: 1rem; color: hsl(var(--text-secondary)); margin: 1.25rem 0; }
+  .prose-news strong { font-weight: 700; }
 }

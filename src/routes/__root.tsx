@@ -11,11 +11,11 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-base px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-extrabold gradient-text">404</h1>
+        <h1 className="text-7xl font-extrabold text-accent">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-text-primary">Página não encontrada</h2>
         <p className="mt-2 text-sm text-text-secondary">O conteúdo que você procura não existe ou foi movido.</p>
-        <a href="/" className="lp-btn-primary-indigo mt-6">
-          Voltar para o blog
+        <a href="/" className="jp-btn-outline mt-6">
+          Voltar para a página inicial
         </a>
       </div>
     </div>
@@ -27,28 +27,34 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "[VIA] Viver de IA - Solução de Blog" },
-      { name: "description", content: "AI-powered blog and content generation tool." },
-      { property: "og:title", content: "[VIA] Viver de IA - Solução de Blog" },
-      { property: "og:description", content: "AI-powered blog and content generation tool." },
+      { title: "Jovem Pan Goiás — Notícias de Goiânia, Caldas Novas e Goiás" },
+      { name: "description", content: "O jornal local da Jovem Pan em Goiás: Goiânia 106,7 e Caldas Novas 105,7." },
+      { name: "theme-color", content: "#DD0510" },
+      { property: "og:site_name", content: "Jovem Pan Goiás" },
+      { property: "og:title", content: "Jovem Pan Goiás" },
+      { property: "og:description", content: "Notícias de Goiânia, Caldas Novas e Goiás." },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "pt_BR" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "[VIA] Viver de IA - Solução de Blog" },
-      { name: "twitter:description", content: "AI-powered blog and content generation tool." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/842efe89-97a3-4f74-9e7e-0ba19ba818f4/id-preview-ea5d258a--1d6adbdc-0d62-4236-b302-988a8db4bad7.lovable.app-1776982152645.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/842efe89-97a3-4f74-9e7e-0ba19ba818f4/id-preview-ea5d258a--1d6adbdc-0d62-4236-b302-988a8db4bad7.lovable.app-1776982152645.png" },
+      { name: "twitter:title", content: "Jovem Pan Goiás" },
+      { name: "twitter:description", content: "Notícias de Goiânia, Caldas Novas e Goiás." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&display=swap" },
-      // Inter mantida como fallback do stack --font-sans.
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" },
+      // Montserrat: alternativa livre à Gotham (fonte oficial do manual JP).
+      // Barlow Condensed: linha "cidade | dial" do logo.
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Barlow+Condensed:wght@600;700&display=swap",
+      },
+      { rel: "icon", type: "image/png", href: "/brand/favicon-64.png" },
+      { rel: "apple-touch-icon", href: "/brand/favicon-64.png" },
       {
         rel: "alternate",
         type: "application/rss+xml",
-        title: "EditorIA — RSS",
+        title: "Jovem Pan Goiás — RSS",
         href: "/feed.xml",
       },
     ],

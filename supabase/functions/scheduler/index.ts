@@ -1,7 +1,8 @@
 // Cron-triggered:
 //  1) publica posts com status=scheduled e scheduled_at <= now().
 //  2) baixa RSS (fetch-rss).
-//  3) dispara generate-post para topics cujo frequency_hours elapsou.
+//  3) com o motor editorial ligado: roda o horário devido da grade (editorial-slot);
+//     desligado: dispara generate-post para topics cujo frequency_hours elapsou.
 // Registra execução em generation_runs.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { fetchWithRetry } from "../_shared/retry.ts";
@@ -11,6 +12,55 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+// Janela para disparar um horário: o cron roda a cada 15 min, então um
+// horário fica "devido" por até 45 min depois da hora marcada.
+const SLOT_WINDOW_MINUTES = 45;
+const TZ_OFFSET_HOURS = -3; // America/Sao_Paulo
+
+// Encontra o horário da grade devido agora (fuso de Goiás), marca como executado
+// hoje (claim atômico, evita duas execuções) e chama editorial-slot.
+async function runDueSlot(
+  supabase: ReturnType<typeof createClient>,
+  supabaseUrl: string,
+  serviceKey: string,
+): Promise<Record<string, unknown>> {
+  const local = new Date(Date.now() + TZ_OFFSET_HOURS * 3600_000);
+  const today = local.toISOString().slice(0, 10);
+  const dow = local.getUTCDay();
+  const dayType = dow === 0 || dow === 6 ? "weekend" : "weekday";
+  const nowMinutes = local.getUTCHours() * 60 + local.getUTCMinutes();
+
+  const { data: slots } = await supabase
+    .from("schedule_slots")
+    .select("id, slot_time, last_run_on")
+    .eq("day_type", dayType)
+    .eq("active", true)
+    .order("slot_time");
+
+  const due = (slots ?? []).find((s: { slot_time: string; last_run_on: string | null }) => {
+    const [h, m] = s.slot_time.split(":").map(Number);
+    const diff = nowMinutes - (h * 60 + m);
+    return diff >= 0 && diff < SLOT_WINDOW_MINUTES && s.last_run_on !== today;
+  }) as { id: string; slot_time: string } | undefined;
+  if (!due) return { ok: true, due: null };
+
+  const { data: claimed } = await supabase
+    .from("schedule_slots")
+    .update({ last_run_on: today })
+    .eq("id", due.id)
+    .or(`last_run_on.is.null,last_run_on.neq.${today}`)
+    .select("id");
+  if (!claimed || claimed.length === 0) return { ok: true, due: due.slot_time, skipped: "já executado" };
+
+  const r = await fetch(`${supabaseUrl}/functions/v1/editorial-slot`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ slotId: due.id }),
+  });
+  const j = await r.json().catch(() => ({}));
+  return { ok: r.ok, due: due.slot_time, ...j };
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -61,6 +111,40 @@ Deno.serve(async (req) => {
       body: "{}",
     });
     const rssData = await rssRes.json().catch(() => ({}));
+
+    // 3a) Motor editorial (grade de horários). Quando ligado, substitui os modos por tópico.
+    const { data: engineCfg } = await supabase
+      .from("project_config")
+      .select("value")
+      .eq("key", "editorial_engine_enabled")
+      .maybeSingle();
+    if (engineCfg?.value === "true") {
+      // O post de um horário leva de 1 a 3 min (pesquisa, redação, validação, capa).
+      // Roda em segundo plano para o cron não estourar o tempo da requisição.
+      const job = runDueSlot(supabase, supabaseUrl, serviceKey)
+        .then((slotResult) =>
+          finishRun(
+            supabase,
+            run,
+            slotResult.ok === false
+              ? {
+                  status: "error",
+                  error: new Error(String(slotResult.error ?? "editorial-slot falhou")),
+                  metadata: { publishedScheduled, slot: slotResult },
+                }
+              : { status: "success", metadata: { publishedScheduled, slot: slotResult } },
+          )
+        )
+        .catch((e) => finishRun(supabase, run, { status: "error", error: e }));
+      // deno-lint-ignore no-explicit-any
+      const runtime = (globalThis as any).EdgeRuntime;
+      if (runtime?.waitUntil) runtime.waitUntil(job);
+      else await job;
+      return new Response(
+        JSON.stringify({ ok: true, publishedScheduled, rss: rssData, engine: "slot-check-started" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     // 3) Topics devidos — agora suportando 3 modos: interval | daily_window | per_new_item.
     const { data: topics } = await supabase

@@ -201,6 +201,9 @@ function PostsPage() {
                           )}
                           <span className="font-medium text-text-primary">{p.title}</span>
                         </div>
+                        {p.status === "draft" && p.review_reason && (
+                          <p className="mt-1 text-xs text-warm">{p.review_reason}</p>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span
