@@ -47,6 +47,14 @@ ON CONFLICT (slug) DO UPDATE SET
   requires_approval = EXCLUDED.requires_approval,
   publish_mode = EXCLUDED.publish_mode;
 
+-- Leitura pública só das editorias do site (slug preenchido): o menu, os chapéus
+-- e as páginas de editoria são públicos. Tópicos antigos sem slug seguem restritos.
+GRANT SELECT ON public.editorial_topics TO anon, authenticated;
+DROP POLICY IF EXISTS editorial_topics_public_categories ON public.editorial_topics;
+CREATE POLICY editorial_topics_public_categories ON public.editorial_topics
+  FOR SELECT TO anon, authenticated
+  USING (slug IS NOT NULL);
+
 -- ── Feeds ─────────────────────────────────────────────────────────────────
 ALTER TABLE public.rss_feeds
   ADD COLUMN IF NOT EXISTS source_kind TEXT NOT NULL DEFAULT 'veiculo',
