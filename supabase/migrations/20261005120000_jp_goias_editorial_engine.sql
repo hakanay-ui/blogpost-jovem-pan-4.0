@@ -204,7 +204,8 @@ INSERT INTO public.schedule_slots (day_type, slot_time, topic_slugs, focus, stro
   ('weekend', '16:00', ARRAY['goiania'], NULL, false),
   ('weekend', '17:30', ARRAY['esporte'], 'Resultados', false),
   ('weekend', '19:00', ARRAY[]::TEXT[], 'O assunto mais forte do dia', true)
-ON CONFLICT (day_type, slot_time) DO NOTHING;
+-- Só o foco é reaplicado: categorias e ativo/inativo são editados pelo painel.
+ON CONFLICT (day_type, slot_time) DO UPDATE SET focus = EXCLUDED.focus;
 
 -- ── Configuração ──────────────────────────────────────────────────────────
 -- Chaves blog_* são lidas pelo front público; as demais seguem só para admin.
