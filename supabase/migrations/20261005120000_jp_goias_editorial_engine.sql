@@ -57,9 +57,10 @@ DO $$ BEGIN
     ADD CONSTRAINT rss_feeds_source_kind_check CHECK (source_kind IN ('veiculo', 'oficial', 'busca'));
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-INSERT INTO public.rss_feeds (name, url, source_kind, discovery_only, active, topic_id)
-SELECT f.name, f.url, f.kind, f.discovery, true, t.id
-FROM (VALUES
+-- Não depende de UNIQUE(url): atualiza os feeds que já existem e insere os que faltam.
+DROP TABLE IF EXISTS pg_temp.jp_feeds;
+CREATE TEMP TABLE jp_feeds (name TEXT, url TEXT, kind TEXT, discovery BOOLEAN, topic_slug TEXT);
+INSERT INTO jp_feeds (name, url, kind, discovery, topic_slug) VALUES
   -- 4.1 Veículos de notícia
   ('g1 Goiás', 'https://g1.globo.com/rss/g1/go/goias/', 'veiculo', false, NULL),
   ('A Redação', 'https://www.aredacao.com.br/feed/', 'veiculo', false, 'goiania'),
@@ -91,14 +92,24 @@ FROM (VALUES
   ('Busca: O Popular', 'https://news.google.com/rss/search?q=site:opopular.com.br+when:1d&hl=pt-BR&gl=BR&ceid=BR:pt-419', 'busca', true, NULL),
   ('Busca: Mais Goiás', 'https://news.google.com/rss/search?q=site:maisgoias.com.br+when:1d&hl=pt-BR&gl=BR&ceid=BR:pt-419', 'busca', true, NULL),
   ('Busca: Jornal Opção', 'https://news.google.com/rss/search?q=site:jornalopcao.com.br+when:1d&hl=pt-BR&gl=BR&ceid=BR:pt-419', 'busca', true, NULL),
-  ('Busca: Assembleia Legislativa GO', 'https://news.google.com/rss/search?q=%22Assembleia+Legislativa+de+Goi%C3%A1s%22+OR+Alego+when:2d&hl=pt-BR&gl=BR&ceid=BR:pt-419', 'busca', true, 'politica')
-) AS f(name, url, kind, discovery, topic_slug)
+  ('Busca: Assembleia Legislativa GO', 'https://news.google.com/rss/search?q=%22Assembleia+Legislativa+de+Goi%C3%A1s%22+OR+Alego+when:2d&hl=pt-BR&gl=BR&ceid=BR:pt-419', 'busca', true, 'politica');
+
+UPDATE public.rss_feeds r
+SET name = f.name,
+    source_kind = f.kind,
+    discovery_only = f.discovery,
+    topic_id = t.id
+FROM jp_feeds f
 LEFT JOIN public.editorial_topics t ON t.slug = f.topic_slug
-ON CONFLICT (url) DO UPDATE SET
-  name = EXCLUDED.name,
-  source_kind = EXCLUDED.source_kind,
-  discovery_only = EXCLUDED.discovery_only,
-  topic_id = EXCLUDED.topic_id;
+WHERE r.url = f.url;
+
+INSERT INTO public.rss_feeds (name, url, source_kind, discovery_only, active, topic_id)
+SELECT f.name, f.url, f.kind, f.discovery, true, t.id
+FROM jp_feeds f
+LEFT JOIN public.editorial_topics t ON t.slug = f.topic_slug
+WHERE NOT EXISTS (SELECT 1 FROM public.rss_feeds r WHERE r.url = f.url);
+
+DROP TABLE jp_feeds;
 
 -- ── Posts: campos do formato do briefing ──────────────────────────────────
 ALTER TABLE public.posts
@@ -138,21 +149,34 @@ ALTER TABLE public.schedule_slots ENABLE ROW LEVEL SECURITY;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.schedule_slots TO authenticated;
 GRANT ALL ON public.schedule_slots TO service_role;
 
+-- Consulta user_roles direto (o banco não tem a função has_role).
+-- Cada usuário enxerga as próprias linhas de user_roles, então a subconsulta funciona sob RLS.
 DROP POLICY IF EXISTS schedule_slots_admin_all ON public.schedule_slots;
 CREATE POLICY schedule_slots_admin_all ON public.schedule_slots
   FOR ALL TO authenticated
-  USING (public.has_role(auth.uid(), 'admin'))
-  WITH CHECK (public.has_role(auth.uid(), 'admin'));
+  USING (EXISTS (SELECT 1 FROM public.user_roles ur WHERE ur.user_id = auth.uid() AND ur.role::text = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM public.user_roles ur WHERE ur.user_id = auth.uid() AND ur.role::text = 'admin'));
 
 DROP POLICY IF EXISTS schedule_slots_editor_select ON public.schedule_slots;
 CREATE POLICY schedule_slots_editor_select ON public.schedule_slots
   FOR SELECT TO authenticated
-  USING (public.has_role(auth.uid(), 'editor'));
+  USING (EXISTS (SELECT 1 FROM public.user_roles ur WHERE ur.user_id = auth.uid() AND ur.role::text = 'editor'));
+
+CREATE OR REPLACE FUNCTION public.schedule_slots_touch_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
 
 DROP TRIGGER IF EXISTS schedule_slots_updated_at ON public.schedule_slots;
 CREATE TRIGGER schedule_slots_updated_at
   BEFORE UPDATE ON public.schedule_slots
-  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.schedule_slots_touch_updated_at();
 
 -- Horários no fuso de Goiás (America/Sao_Paulo).
 INSERT INTO public.schedule_slots (day_type, slot_time, topic_slugs, focus, strongest_of_day) VALUES
@@ -216,6 +240,6 @@ BEGIN
       (SELECT command FROM cron.job WHERE jobname = 'scheduler_hourly')
     );
   END IF;
-EXCEPTION WHEN undefined_table OR invalid_schema_name THEN
-  RAISE NOTICE 'pg_cron indisponível; ajuste o agendamento manualmente.';
+EXCEPTION WHEN OTHERS THEN
+  RAISE NOTICE 'Não foi possível ajustar o cron (%); ajuste o agendamento manualmente.', SQLERRM;
 END $$;
