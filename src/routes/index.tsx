@@ -20,6 +20,10 @@ export const Route = createFileRoute("/")({
         content:
           "O jornal local da Jovem Pan em Goiás: Goiânia, Caldas Novas e região, política, economia e agro, esporte, serviço e agenda.",
       },
+      { property: "og:title", content: `${SITE.name} — Notícias de Goiânia, Caldas Novas e Goiás` },
+      { property: "og:description", content: "O jornal local da Jovem Pan em Goiás: notícias de Goiânia, Caldas Novas e região." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: `${siteUrl()}/` }],
   }),

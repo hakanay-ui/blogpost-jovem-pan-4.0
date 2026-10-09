@@ -18,6 +18,7 @@ import {
   UserCircle,
   HelpCircle,
   CalendarClock,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { TopBar } from "@/components/admin/TopBar";
@@ -25,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const items = [
   { to: "/admin", icon: LayoutGrid, label: "Dashboard", exact: true },
+  { to: "/admin/audiencia", icon: ChartNoAxesCombined, label: "Audiência" },
   { to: "/admin/grade", icon: CalendarClock, label: "Grade de horários" },
   { to: "/admin/topics", icon: Tag, label: "Editorias" },
   { to: "/admin/posts", icon: FileText, label: "Posts" },
