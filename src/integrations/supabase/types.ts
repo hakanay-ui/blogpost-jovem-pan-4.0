@@ -131,6 +131,30 @@ export type Database = {
           },
         ]
       }
+      page_visits: {
+        Row: {
+          created_at: string
+          id: string
+          path: string
+          referrer_host: string | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          path: string
+          referrer_host?: string | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          path?: string
+          referrer_host?: string | null
+          session_id?: string
+        }
+        Relationships: []
+      }
       post_revisions: {
         Row: {
           content: string
@@ -642,7 +666,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_audience_stats: { Args: never; Returns: Json }
+      record_page_visit: {
+        Args: {
+          p_event_id: string
+          p_path: string
+          p_referrer?: string
+          p_session_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "editor" | "user"

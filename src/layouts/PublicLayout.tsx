@@ -5,6 +5,7 @@ import { useProjectConfig } from "@/hooks/queries/useProjectConfig";
 import { useCategories } from "@/hooks/queries/useNews";
 import { useTheme } from "@/contexts/ThemeContext";
 import { SITE, todayLabel } from "@/lib/site";
+import { AudienceTracker } from "@/components/site/AudienceTracker";
 
 export function PublicLayout({
   children,
@@ -18,6 +19,7 @@ export function PublicLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col bg-bg-base text-text-primary">
+      <AudienceTracker />
       <SiteHeader />
       {showIntro && <SiteIntro activeCategory={activeCategory} />}
       <main className="flex-1">{children ?? <Outlet />}</main>

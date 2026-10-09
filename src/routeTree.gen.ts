@@ -25,6 +25,7 @@ import { Route as CategoriaSlugRouteImport } from './routes/$categoria.$slug'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminSplatRouteImport } from './routes/admin.$'
+import { Route as AdminAudienciaRouteImport } from './routes/admin.audiencia'
 import { Route as AdminFeedsRouteImport } from './routes/admin.feeds'
 import { Route as AdminGenerateRouteImport } from './routes/admin.generate'
 import { Route as AdminGradeRouteImport } from './routes/admin.grade'
@@ -124,6 +125,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
 const AdminSplatRoute = AdminSplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAudienciaRoute = AdminAudienciaRouteImport.update({
+  id: '/audiencia',
+  path: '/audiencia',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminFeedsRoute = AdminFeedsRouteImport.update({
@@ -237,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/$categoria/$slug': typeof CategoriaSlugRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/$': typeof AdminSplatRoute
+  '/admin/audiencia': typeof AdminAudienciaRoute
   '/admin/feeds': typeof AdminFeedsRoute
   '/admin/generate': typeof AdminGenerateRoute
   '/admin/grade': typeof AdminGradeRoute
@@ -273,6 +280,7 @@ export interface FileRoutesByTo {
   '/$categoria/$slug': typeof CategoriaSlugRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/$': typeof AdminSplatRoute
+  '/admin/audiencia': typeof AdminAudienciaRoute
   '/admin/feeds': typeof AdminFeedsRoute
   '/admin/generate': typeof AdminGenerateRoute
   '/admin/grade': typeof AdminGradeRoute
@@ -311,6 +319,7 @@ export interface FileRoutesById {
   '/$categoria/$slug': typeof CategoriaSlugRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/$': typeof AdminSplatRoute
+  '/admin/audiencia': typeof AdminAudienciaRoute
   '/admin/feeds': typeof AdminFeedsRoute
   '/admin/generate': typeof AdminGenerateRoute
   '/admin/grade': typeof AdminGradeRoute
@@ -350,6 +359,7 @@ export interface FileRouteTypes {
     | '/$categoria/$slug'
     | '/.well-known/oauth-protected-resource'
     | '/admin/$'
+    | '/admin/audiencia'
     | '/admin/feeds'
     | '/admin/generate'
     | '/admin/grade'
@@ -386,6 +396,7 @@ export interface FileRouteTypes {
     | '/$categoria/$slug'
     | '/.well-known/oauth-protected-resource'
     | '/admin/$'
+    | '/admin/audiencia'
     | '/admin/feeds'
     | '/admin/generate'
     | '/admin/grade'
@@ -423,6 +434,7 @@ export interface FileRouteTypes {
     | '/$categoria/$slug'
     | '/.well-known/oauth-protected-resource'
     | '/admin/$'
+    | '/admin/audiencia'
     | '/admin/feeds'
     | '/admin/generate'
     | '/admin/grade'
@@ -581,6 +593,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSplatRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/audiencia': {
+      id: '/admin/audiencia'
+      path: '/audiencia'
+      fullPath: '/admin/audiencia'
+      preLoaderRoute: typeof AdminAudienciaRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/feeds': {
       id: '/admin/feeds'
       path: '/feeds'
@@ -731,6 +750,7 @@ const AdminPostsRouteWithChildren = AdminPostsRoute._addFileChildren(
 
 interface AdminRouteChildren {
   AdminSplatRoute: typeof AdminSplatRoute
+  AdminAudienciaRoute: typeof AdminAudienciaRoute
   AdminFeedsRoute: typeof AdminFeedsRoute
   AdminGenerateRoute: typeof AdminGenerateRoute
   AdminGradeRoute: typeof AdminGradeRoute
@@ -750,6 +770,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminSplatRoute: AdminSplatRoute,
+  AdminAudienciaRoute: AdminAudienciaRoute,
   AdminFeedsRoute: AdminFeedsRoute,
   AdminGenerateRoute: AdminGenerateRoute,
   AdminGradeRoute: AdminGradeRoute,
